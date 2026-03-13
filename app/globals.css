@@ -22,6 +22,28 @@
     }
 }
 
+@keyframes nav-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes content-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
 @layer base {
     :root {
         --background: 0 0% 100%;
@@ -79,26 +101,52 @@
 }
 
 @layer base {
+    html,
+    body {
+        min-height: 100%;
+        overflow-x: hidden;
+    }
+
     * {
         @apply border-border;
     }
 
     body {
         @apply bg-background text-foreground;
+        font-family: var(--font-body), sans-serif;
+        font-weight: 400;
     }
 
-    @font-face {
-        font-family: "geist";
-        font-style: normal;
-        font-weight: 100 900;
-        src: url(/fonts/geist.woff2) format("woff2");
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-heading), sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.03em;
     }
 
-    @font-face {
-        font-family: "geist-mono";
-        font-style: normal;
-        font-weight: 100 900;
-        src: url(/fonts/geist-mono.woff2) format("woff2");
+    p,
+    a,
+    li,
+    span,
+    label,
+    input,
+    textarea,
+    button {
+        font-family: var(--font-body), sans-serif;
+        font-weight: 400;
+    }
+
+    .nav-fade-in {
+        animation: nav-fade-in 420ms ease-out both;
+    }
+
+    .content-fade-in {
+        opacity: 0;
+        animation: content-fade-in 1000ms ease-out forwards;
     }
 }
 

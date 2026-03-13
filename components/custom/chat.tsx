@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Message as PreviewMessage } from "@/components/custom/message";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
 
+import { ImageCarousel } from "./image-carousel";
 import { MultimodalInput } from "./multimodal-input";
 import { Overview } from "./overview";
 
@@ -31,13 +32,15 @@ export function Chat({
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 
   return (
-    <div className="min-h-dvh bg-background pt-16 pb-6 md:pt-20 md:pb-8">
+    <div className="h-dvh overflow-hidden bg-background pt-16 pb-6 md:pt-20 md:pb-8">
       <div
-        className={`mx-auto flex w-full max-w-3xl flex-col items-center px-4 md:px-6 ${
-          messages.length === 0 ? "min-h-[calc(100dvh-4rem)] justify-center" : ""
+        className={`mx-auto flex size-full max-w-3xl flex-col items-center overflow-hidden px-4 md:px-6 ${
+          messages.length === 0 ? "justify-center" : ""
         }`}
       >
         {messages.length === 0 && <Overview />}
+
+        <ImageCarousel messages={messages} />
 
         <form className="flex w-full max-w-[500px] flex-row gap-2 relative items-end">
           <MultimodalInput
@@ -55,7 +58,7 @@ export function Chat({
 
         <div
           ref={messagesContainerRef}
-          className="mt-6 flex w-full flex-col items-center gap-4 overflow-y-auto"
+          className="mt-6 flex min-h-0 w-full flex-1 flex-col items-center gap-4 overflow-y-auto overflow-x-hidden"
         >
           {messages.map((message) => (
             <PreviewMessage
