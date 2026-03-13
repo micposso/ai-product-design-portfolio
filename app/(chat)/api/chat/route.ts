@@ -8,25 +8,11 @@ import {
   generateSampleFlightStatus,
   generateSampleSeatSelection,
 } from "@/ai/actions";
-import { auth } from "@/app/(auth)/auth";
-import {
-  createReservation,
-  deleteChatById,
-  getChatById,
-  getReservationById,
-  saveChat,
-} from "@/db/queries";
 import { generateUUID } from "@/lib/utils";
 
 export async function POST(request: Request) {
   const { id, messages }: { id: string; messages: Array<Message> } =
     await request.json();
-
-  const session = await auth();
-
-  if (!session) {
-    return new Response("Unauthorized", { status: 401 });
-  }
 
   const coreMessages = convertToCoreMessages(messages).filter(
     (message) => message.content.length > 0,
@@ -133,23 +119,8 @@ export async function POST(request: Request) {
         }),
         execute: async (props) => {
           const { totalPriceInUSD } = await generateReservationPrice(props);
-          const session = await auth();
-
           const id = generateUUID();
-
-          if (session && session.user && session.user.id) {
-            await createReservation({
-              id,
-              userId: session.user.id,
-              details: { ...props, totalPriceInUSD },
-            });
-
-            return { id, ...props, totalPriceInUSD };
-          } else {
-            return {
-              error: "User is not signed in to perform this action!",
-            };
-          }
+          return { id, ...props, totalPriceInUSD };
         },
       },
       authorizePayment: {
@@ -172,13 +143,7 @@ export async function POST(request: Request) {
             .describe("Unique identifier for the reservation"),
         }),
         execute: async ({ reservationId }) => {
-          const reservation = await getReservationById({ id: reservationId });
-
-          if (reservation.hasCompletedPayment) {
-            return { hasCompletedPayment: true };
-          } else {
-            return { hasCompletedPayment: false };
-          }
+          return { hasCompletedPayment: false, reservationId };
         },
       },
       displayBoardingPass: {
@@ -214,19 +179,6 @@ export async function POST(request: Request) {
         },
       },
     },
-    onFinish: async ({ responseMessages }) => {
-      if (session.user && session.user.id) {
-        try {
-          await saveChat({
-            id,
-            messages: [...coreMessages, ...responseMessages],
-            userId: session.user.id,
-          });
-        } catch (error) {
-          console.error("Failed to save chat");
-        }
-      }
-    },
     experimental_telemetry: {
       isEnabled: true,
       functionId: "stream-text",
@@ -244,25 +196,5 @@ export async function DELETE(request: Request) {
     return new Response("Not Found", { status: 404 });
   }
 
-  const session = await auth();
-
-  if (!session || !session.user) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
-  try {
-    const chat = await getChatById({ id });
-
-    if (chat.userId !== session.user.id) {
-      return new Response("Unauthorized", { status: 401 });
-    }
-
-    await deleteChatById({ id });
-
-    return new Response("Chat deleted", { status: 200 });
-  } catch (error) {
-    return new Response("An error occurred while processing your request", {
-      status: 500,
-    });
-  }
+  return new Response("Chat history is disabled", { status: 405 });
 }
