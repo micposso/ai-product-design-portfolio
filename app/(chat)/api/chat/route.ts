@@ -10,9 +10,134 @@ import {
 } from "@/ai/actions";
 import { generateUUID } from "@/lib/utils";
 
+const MAX_MESSAGES_PER_REQUEST = 20;
+const MAX_PROMPT_CHARACTERS = 1500;
+const TEN_MINUTES_IN_MS = 10 * 60 * 1000;
+const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
+const REQUESTS_PER_TEN_MINUTES = 10;
+const REQUESTS_PER_DAY = 100;
+
+type RateLimitEntry = {
+  shortWindowStart: number;
+  shortWindowCount: number;
+  dayWindowStart: number;
+  dayWindowCount: number;
+};
+
+const rateLimitStore = new Map<string, RateLimitEntry>();
+
+function getClientIp(request: Request) {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const realIp = request.headers.get("x-real-ip");
+
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0]?.trim() || "anonymous";
+  }
+
+  return realIp || "anonymous";
+}
+
+function applyRateLimit(ip: string) {
+  const now = Date.now();
+  const currentEntry = rateLimitStore.get(ip);
+
+  if (!currentEntry) {
+    rateLimitStore.set(ip, {
+      shortWindowStart: now,
+      shortWindowCount: 1,
+      dayWindowStart: now,
+      dayWindowCount: 1,
+    });
+
+    return { allowed: true as const };
+  }
+
+  const nextEntry = { ...currentEntry };
+
+  if (now - nextEntry.shortWindowStart >= TEN_MINUTES_IN_MS) {
+    nextEntry.shortWindowStart = now;
+    nextEntry.shortWindowCount = 0;
+  }
+
+  if (now - nextEntry.dayWindowStart >= ONE_DAY_IN_MS) {
+    nextEntry.dayWindowStart = now;
+    nextEntry.dayWindowCount = 0;
+  }
+
+  if (nextEntry.shortWindowCount >= REQUESTS_PER_TEN_MINUTES) {
+    return {
+      allowed: false as const,
+      message: "Too many requests. Please try again in a few minutes.",
+    };
+  }
+
+  if (nextEntry.dayWindowCount >= REQUESTS_PER_DAY) {
+    return {
+      allowed: false as const,
+      message: "Daily chat limit reached. Please try again tomorrow.",
+    };
+  }
+
+  nextEntry.shortWindowCount += 1;
+  nextEntry.dayWindowCount += 1;
+  rateLimitStore.set(ip, nextEntry);
+
+  if (rateLimitStore.size > 5000) {
+    for (const [key, value] of rateLimitStore.entries()) {
+      const shortWindowExpired =
+        now - value.shortWindowStart >= TEN_MINUTES_IN_MS &&
+        value.shortWindowCount === 0;
+      const dayWindowExpired = now - value.dayWindowStart >= ONE_DAY_IN_MS;
+
+      if (shortWindowExpired || dayWindowExpired) {
+        rateLimitStore.delete(key);
+      }
+    }
+  }
+
+  return { allowed: true as const };
+}
+
 export async function POST(request: Request) {
   const { id, messages }: { id: string; messages: Array<Message> } =
     await request.json();
+
+  const ip = getClientIp(request);
+  const rateLimitResult = applyRateLimit(ip);
+
+  if (!rateLimitResult.allowed) {
+    return Response.json({ error: rateLimitResult.message }, { status: 429 });
+  }
+
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return Response.json({ error: "No messages provided." }, { status: 400 });
+  }
+
+  if (messages.length > MAX_MESSAGES_PER_REQUEST) {
+    return Response.json(
+      {
+        error: `Too many messages in one request. Limit is ${MAX_MESSAGES_PER_REQUEST}.`,
+      },
+      { status: 400 },
+    );
+  }
+
+  const latestUserMessage = [...messages]
+    .reverse()
+    .find((message) => message.role === "user");
+
+  if (
+    latestUserMessage &&
+    typeof latestUserMessage.content === "string" &&
+    latestUserMessage.content.length > MAX_PROMPT_CHARACTERS
+  ) {
+    return Response.json(
+      {
+        error: `Message too long. Limit is ${MAX_PROMPT_CHARACTERS} characters.`,
+      },
+      { status: 400 },
+    );
+  }
 
   const coreMessages = convertToCoreMessages(messages).filter(
     (message) => message.content.length > 0,
