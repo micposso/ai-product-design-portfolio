@@ -6,8 +6,13 @@ import { CaseStudyChat } from "@/components/custom/case-study-chat";
 import { getCaseStudyBySlug } from "@/lib/case-studies";
 import { generateUUID } from "@/lib/utils";
 
-export default async function Page({ params }: { params: { slug: string } }) {
-  const caseStudy = getCaseStudyBySlug(params.slug);
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const caseStudy = getCaseStudyBySlug(slug);
 
   if (!caseStudy) {
     notFound();
