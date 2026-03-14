@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Message as PreviewMessage } from "@/components/custom/message";
+import { TypingIndicator } from "@/components/custom/typing-indicator";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
 
 import { MultimodalInput } from "./multimodal-input";
@@ -136,8 +137,11 @@ export function CaseStudyChat({
                         content={message.content}
                         attachments={message.experimental_attachments}
                         toolInvocations={message.toolInvocations}
+                        append={append}
                       />
                     ))}
+
+                    {isLoading ? <TypingIndicator /> : null}
 
                     <div
                       ref={messagesEndRef}

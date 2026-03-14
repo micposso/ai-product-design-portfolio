@@ -1,14 +1,16 @@
 import { convertToCoreMessages, Message, streamText } from "ai";
-import { z } from "zod";
 
-import { geminiProModel } from "@/ai";
+import { geminiFlashModel, geminiProModel } from "@/ai";
 import {
-  generateReservationPrice,
-  generateSampleFlightSearchResults,
-  generateSampleFlightStatus,
-  generateSampleSeatSelection,
-} from "@/ai/actions";
-import { generateUUID } from "@/lib/utils";
+  extractFollowUpQuestion,
+  isAffirmativeReply,
+} from "@/lib/follow-ups";
+import {
+  buildContextFromChunks,
+  getFollowUpQuestion,
+  retrieveRelevantChunks,
+  shouldAnswerFromProfile,
+} from "@/lib/rag";
 
 const MAX_MESSAGES_PER_REQUEST = 20;
 const MAX_PROMPT_CHARACTERS = 1500;
@@ -16,6 +18,7 @@ const TEN_MINUTES_IN_MS = 10 * 60 * 1000;
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 const REQUESTS_PER_TEN_MINUTES = 10;
 const REQUESTS_PER_DAY = 100;
+const SHORT_QUERY_TOKEN_LIMIT = 4;
 
 type RateLimitEntry = {
   shortWindowStart: number;
@@ -25,6 +28,86 @@ type RateLimitEntry = {
 };
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
+
+function resolveFollowUpIntent(messages: Array<Message>, latestUserMessage: Message) {
+  if (
+    typeof latestUserMessage.content !== "string" ||
+    !isAffirmativeReply(latestUserMessage.content)
+  ) {
+    return null;
+  }
+
+  const latestUserIndex = messages.findLastIndex(
+    (message) => message.id === latestUserMessage.id,
+  );
+
+  if (latestUserIndex <= 0) {
+    return null;
+  }
+
+  for (let index = latestUserIndex - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+
+    if (message?.role !== "assistant" || typeof message.content !== "string") {
+      continue;
+    }
+
+    const followUpQuestion = extractFollowUpQuestion(message.content);
+
+    if (followUpQuestion) {
+      return followUpQuestion;
+    }
+  }
+
+  return null;
+}
+
+function tokenizeForContext(text: string) {
+  return text
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .map((token) => token.trim())
+    .filter(Boolean);
+}
+
+function buildEffectiveQuery(messages: Array<Message>, latestUserMessage: Message) {
+  const followUpQuestion = resolveFollowUpIntent(messages, latestUserMessage);
+
+  if (followUpQuestion) {
+    return followUpQuestion;
+  }
+
+  if (typeof latestUserMessage.content !== "string") {
+    return "";
+  }
+
+  const latestQuery = latestUserMessage.content.trim();
+  const latestTokens = tokenizeForContext(latestQuery);
+
+  if (latestTokens.length > SHORT_QUERY_TOKEN_LIMIT) {
+    return latestQuery;
+  }
+
+  const latestUserIndex = messages.findLastIndex(
+    (message) => message.id === latestUserMessage.id,
+  );
+
+  if (latestUserIndex <= 0) {
+    return latestQuery;
+  }
+
+  for (let index = latestUserIndex - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+
+    if (message?.role !== "user" || typeof message.content !== "string") {
+      continue;
+    }
+
+    return `${message.content.trim()}\n\nFollow-up question: ${latestQuery}`;
+  }
+
+  return latestQuery;
+}
 
 function getClientIp(request: Request) {
   const forwardedFor = request.headers.get("x-forwarded-for");
@@ -126,9 +209,14 @@ export async function POST(request: Request) {
     .reverse()
     .find((message) => message.role === "user");
 
+  if (!latestUserMessage || typeof latestUserMessage.content !== "string") {
+    return Response.json(
+      { error: "A text question is required to use the chat." },
+      { status: 400 },
+    );
+  }
+
   if (
-    latestUserMessage &&
-    typeof latestUserMessage.content === "string" &&
     latestUserMessage.content.length > MAX_PROMPT_CHARACTERS
   ) {
     return Response.json(
@@ -143,167 +231,98 @@ export async function POST(request: Request) {
     (message) => message.content.length > 0,
   );
 
+  const effectiveQuery = buildEffectiveQuery(messages, latestUserMessage);
+  const requestMessages = effectiveQuery !== latestUserMessage.content
+    ? coreMessages.map((message, index) => {
+        if (index !== coreMessages.length - 1 || message.role !== "user") {
+          return message;
+        }
+
+        return {
+          ...message,
+          content: effectiveQuery,
+        };
+      })
+    : coreMessages;
+  const retrievedChunks = retrieveRelevantChunks(effectiveQuery);
+
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[RAG] Query:", latestUserMessage.content);
+    console.log("[RAG] Effective query:", effectiveQuery);
+    console.log(
+      "[RAG] Retrieved chunks:",
+      retrievedChunks.map((entry) => ({
+        title: entry.chunk.title,
+        score: entry.score,
+      })),
+    );
+  }
+
+  if (
+    retrievedChunks.length === 0 ||
+    !shouldAnswerFromProfile(effectiveQuery, retrievedChunks)
+  ) {
+    const refusalResult = await streamText({
+      model: geminiFlashModel,
+      system: `You speak in Michael Posso's voice, but only about his professional background.
+
+The user's question is outside scope.
+
+Write one short, lightly humorous refusal that:
+- starts with the spirit of "Hey, let's keep things in focus"
+- says you can only talk about your professional experience and background
+- does not answer the off-topic question
+- does not use bullets
+- uses first person
+- stays under 30 words`,
+      messages: [
+        {
+          role: "user",
+          content: effectiveQuery,
+        },
+      ],
+      experimental_telemetry: {
+        isEnabled: true,
+        functionId: "stream-text-refusal",
+      },
+    });
+
+    return refusalResult.toDataStreamResponse({});
+  }
+
+  const context = buildContextFromChunks(
+    retrievedChunks.map((entry) => entry.chunk),
+  );
+  const sourceTitles = Array.from(
+    new Set(retrievedChunks.map((entry) => entry.chunk.title)),
+  ).slice(0, 3);
+  const sourceMetadataLine = `[[sources: ${sourceTitles.join(" | ")}]]`;
+  const followUpQuestion = getFollowUpQuestion(
+    retrievedChunks.map((entry) => entry.chunk),
+  );
+
   const result = await streamText({
     model: geminiProModel,
-    system: `\n
-        - you help users book flights!
-        - keep your responses limited to a sentence.
-        - DO NOT output lists.
-        - after every tool call, pretend you're showing the result to the user and keep your response limited to a phrase.
-        - today's date is ${new Date().toLocaleDateString()}.
-        - ask follow up questions to nudge user into the optimal flow
-        - ask for any details you don't know, like name of passenger, etc.'
-        - C and D are aisle seats, A and F are window seats, B and E are middle seats
-        - assume the most popular airports for the origin and destination
-        - here's the optimal flow
-          - search for flights
-          - choose flight
-          - select seats
-          - create reservation (ask user whether to proceed with payment or change reservation)
-          - authorize payment (requires user consent, wait for user to finish payment and let you know when done)
-          - display boarding pass (DO NOT display boarding pass without verifying payment)
-        '
-      `,
-    messages: coreMessages,
-    tools: {
-      getWeather: {
-        description: "Get the current weather at a location",
-        parameters: z.object({
-          latitude: z.number().describe("Latitude coordinate"),
-          longitude: z.number().describe("Longitude coordinate"),
-        }),
-        execute: async ({ latitude, longitude }) => {
-          const response = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`,
-          );
+    system: `You are answering as Michael Posso in first person.
 
-          const weatherData = await response.json();
-          return weatherData;
-        },
-      },
-      displayFlightStatus: {
-        description: "Display the status of a flight",
-        parameters: z.object({
-          flightNumber: z.string().describe("Flight number"),
-          date: z.string().describe("Date of the flight"),
-        }),
-        execute: async ({ flightNumber, date }) => {
-          const flightStatus = await generateSampleFlightStatus({
-            flightNumber,
-            date,
-          });
+You may answer only using the provided context about:
+- your professional experience
 
-          return flightStatus;
-        },
-      },
-      searchFlights: {
-        description: "Search for flights based on the given parameters",
-        parameters: z.object({
-          origin: z.string().describe("Origin airport or city"),
-          destination: z.string().describe("Destination airport or city"),
-        }),
-        execute: async ({ origin, destination }) => {
-          const results = await generateSampleFlightSearchResults({
-            origin,
-            destination,
-          });
+Rules:
+- If the answer is not clearly supported by the provided context, politely refuse.
+- Do not answer general knowledge questions.
+- Do not speculate, invent projects, or fill in missing details.
+- Keep answers concise, clear, and professional.
+- Prefer short paragraphs over lists unless the user explicitly asks for a list.
+- Always speak in first person as Michael. Use "I", "my", and "me" instead of referring to Michael in the third person.
+- Answer only about your background, experience, focus areas, and working approach.
+- Start the response with this exact metadata line, and then continue with the normal answer on the next line: "${sourceMetadataLine}"
+- End the response with this exact follow-up question when it fits naturally: "${followUpQuestion}"
+- The follow-up question should be the final sentence of the response.
 
-          return results;
-        },
-      },
-      selectSeats: {
-        description: "Select seats for a flight",
-        parameters: z.object({
-          flightNumber: z.string().describe("Flight number"),
-        }),
-        execute: async ({ flightNumber }) => {
-          const seats = await generateSampleSeatSelection({ flightNumber });
-          return seats;
-        },
-      },
-      createReservation: {
-        description: "Display pending reservation details",
-        parameters: z.object({
-          seats: z.string().array().describe("Array of selected seat numbers"),
-          flightNumber: z.string().describe("Flight number"),
-          departure: z.object({
-            cityName: z.string().describe("Name of the departure city"),
-            airportCode: z.string().describe("Code of the departure airport"),
-            timestamp: z.string().describe("ISO 8601 date of departure"),
-            gate: z.string().describe("Departure gate"),
-            terminal: z.string().describe("Departure terminal"),
-          }),
-          arrival: z.object({
-            cityName: z.string().describe("Name of the arrival city"),
-            airportCode: z.string().describe("Code of the arrival airport"),
-            timestamp: z.string().describe("ISO 8601 date of arrival"),
-            gate: z.string().describe("Arrival gate"),
-            terminal: z.string().describe("Arrival terminal"),
-          }),
-          passengerName: z.string().describe("Name of the passenger"),
-        }),
-        execute: async (props) => {
-          const { totalPriceInUSD } = await generateReservationPrice(props);
-          const id = generateUUID();
-          return { id, ...props, totalPriceInUSD };
-        },
-      },
-      authorizePayment: {
-        description:
-          "User will enter credentials to authorize payment, wait for user to repond when they are done",
-        parameters: z.object({
-          reservationId: z
-            .string()
-            .describe("Unique identifier for the reservation"),
-        }),
-        execute: async ({ reservationId }) => {
-          return { reservationId };
-        },
-      },
-      verifyPayment: {
-        description: "Verify payment status",
-        parameters: z.object({
-          reservationId: z
-            .string()
-            .describe("Unique identifier for the reservation"),
-        }),
-        execute: async ({ reservationId }) => {
-          return { hasCompletedPayment: false, reservationId };
-        },
-      },
-      displayBoardingPass: {
-        description: "Display a boarding pass",
-        parameters: z.object({
-          reservationId: z
-            .string()
-            .describe("Unique identifier for the reservation"),
-          passengerName: z
-            .string()
-            .describe("Name of the passenger, in title case"),
-          flightNumber: z.string().describe("Flight number"),
-          seat: z.string().describe("Seat number"),
-          departure: z.object({
-            cityName: z.string().describe("Name of the departure city"),
-            airportCode: z.string().describe("Code of the departure airport"),
-            airportName: z.string().describe("Name of the departure airport"),
-            timestamp: z.string().describe("ISO 8601 date of departure"),
-            terminal: z.string().describe("Departure terminal"),
-            gate: z.string().describe("Departure gate"),
-          }),
-          arrival: z.object({
-            cityName: z.string().describe("Name of the arrival city"),
-            airportCode: z.string().describe("Code of the arrival airport"),
-            airportName: z.string().describe("Name of the arrival airport"),
-            timestamp: z.string().describe("ISO 8601 date of arrival"),
-            terminal: z.string().describe("Arrival terminal"),
-            gate: z.string().describe("Arrival gate"),
-          }),
-        }),
-        execute: async (boardingPass) => {
-          return boardingPass;
-        },
-      },
-    },
+    Context:
+${context}`,
+    messages: requestMessages,
     experimental_telemetry: {
       isEnabled: true,
       functionId: "stream-text",

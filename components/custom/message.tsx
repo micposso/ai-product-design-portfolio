@@ -1,9 +1,15 @@
 "use client";
 
-import { Attachment, ToolInvocation } from "ai";
+import { Attachment, CreateMessage, ToolInvocation } from "ai";
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
 import { Streamdown } from "streamdown";
+
+import { extractFollowUpQuestion } from "@/lib/follow-ups";
+import {
+  extractSourceTitles,
+  stripSourceMetadata,
+} from "@/lib/message-metadata";
 
 import { BotIcon, UserIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
@@ -16,19 +22,48 @@ import { ListFlights } from "../flights/list-flights";
 import { SelectSeats } from "../flights/select-seats";
 import { VerifyPayment } from "../flights/verify-payment";
 
+const REFUSAL_RECOVERY_PROMPT = "Want to learn about my professional experience?";
+
+function isRefusalMessage(content: string) {
+  const normalizedContent = content.toLowerCase();
+
+  return (
+    normalizedContent.includes("let's keep things in focus") ||
+    normalizedContent.includes("keep our eyes on the prize") ||
+    (normalizedContent.includes("professional background") &&
+      normalizedContent.includes("professional experience")) ||
+    normalizedContent.includes("outside scope")
+  );
+}
+
 export const Message = ({
   chatId,
   role,
   content,
   toolInvocations,
   attachments,
+  append,
 }: {
   chatId: string;
   role: string;
   content: string | ReactNode;
   toolInvocations: Array<ToolInvocation> | undefined;
   attachments?: Array<Attachment>;
+  append?: (message: CreateMessage) => Promise<string | null | undefined>;
 }) => {
+  const normalizedContent =
+    typeof content === "string" ? stripSourceMetadata(content) : content;
+  const sourceTitles =
+    typeof content === "string" ? extractSourceTitles(content) : [];
+  const followUpQuestion =
+    role === "assistant" && typeof normalizedContent === "string"
+      ? extractFollowUpQuestion(normalizedContent)
+      : undefined;
+  const shouldShowRefusalRecovery =
+    role === "assistant" &&
+    typeof normalizedContent === "string" &&
+    isRefusalMessage(normalizedContent);
+
   return (
     <motion.div
       className="flex w-full max-w-[500px] flex-row gap-4 px-4 md:px-0"
@@ -40,9 +75,56 @@ export const Message = ({
       </div>
 
       <div className="flex flex-col gap-2 w-full">
-        {content && typeof content === "string" && (
+        {normalizedContent && typeof normalizedContent === "string" && (
           <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
-            <Streamdown>{content}</Streamdown>
+            <Streamdown>{normalizedContent}</Streamdown>
+
+            {role === "assistant" && sourceTitles.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {sourceTitles.map((title) => (
+                  <span
+                    key={title}
+                    className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                  >
+                    Based on: {title}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            {shouldShowRefusalRecovery && append ? (
+              <div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    append({
+                      role: "user",
+                      content: REFUSAL_RECOVERY_PROMPT,
+                    })
+                  }
+                  className="rounded-full border border-zinc-200 px-3 py-1.5 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-800 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
+                >
+                  {REFUSAL_RECOVERY_PROMPT}
+                </button>
+              </div>
+            ) : null}
+
+            {followUpQuestion && append ? (
+              <div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    append({
+                      role: "user",
+                      content: followUpQuestion,
+                    })
+                  }
+                  className="rounded-full border border-zinc-200 px-3 py-1.5 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-800 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
+                >
+                  {followUpQuestion}
+                </button>
+              </div>
+            ) : null}
           </div>
         )}
 

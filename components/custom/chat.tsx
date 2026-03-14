@@ -5,6 +5,7 @@ import { useChat } from "ai/react";
 import { useState } from "react";
 
 import { Message as PreviewMessage } from "@/components/custom/message";
+import { TypingIndicator } from "@/components/custom/typing-indicator";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
 
 import { ImageCarousel } from "./image-carousel";
@@ -68,8 +69,11 @@ export function Chat({
               content={message.content}
               attachments={message.experimental_attachments}
               toolInvocations={message.toolInvocations}
+              append={append}
             />
           ))}
+
+          {isLoading ? <TypingIndicator /> : null}
 
           <div
             ref={messagesEndRef}
