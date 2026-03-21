@@ -1,8 +1,9 @@
 import { FollowUpQuestion } from "./follow-ups";
+import { insightPosts } from "./insights";
 import { profileDocument } from "./profile";
 import { projectDocuments } from "./projects";
 
-type SourceType = "profile" | "project";
+type SourceType = "profile" | "project" | "insight";
 
 export type KnowledgeChunk = {
   id: string;
@@ -10,6 +11,16 @@ export type KnowledgeChunk = {
   title: string;
   slug?: string;
   text: string;
+};
+
+export type QueryIntent = {
+  mode: "answer" | "clarify" | "refuse" | "smalltalk";
+  clarification?: string;
+};
+
+export type PageContext = {
+  type: "insight" | "case-study";
+  slug: string;
 };
 
 const STOP_WORDS = new Set([
@@ -107,6 +118,17 @@ const PORTFOLIO_SCOPE_TERMS = [
   "vision",
   "podcast",
   "trust",
+  "insight",
+  "insights",
+  "blog",
+  "blogs",
+  "article",
+  "articles",
+  "wrote",
+  "written",
+  "writing",
+  "thoughts",
+  "clarity",
 ];
 
 function stripMarkdown(text: string) {
@@ -121,6 +143,13 @@ function stripMarkdown(text: string) {
 
 function normalizeText(text: string) {
   return text.toLowerCase();
+}
+
+function normalizeCompactText(text: string) {
+  return normalizeText(text)
+    .replace(/[^a-z0-9\s]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function tokenize(text: string) {
@@ -204,6 +233,16 @@ function buildProjectsSummary() {
     .join(" ");
 }
 
+function buildInsightsSummary() {
+  if (insightPosts.length === 0) {
+    return "";
+  }
+
+  return insightPosts
+    .map((post) => `${post.title}: ${stripMarkdown(post.excerpt)}`)
+    .join(" ");
+}
+
 function isJobHistoryQuestion(query: string) {
   const normalizedQuery = normalizeText(query);
 
@@ -270,6 +309,109 @@ function isProjectQuestion(query: string) {
   ].some((pattern) => normalizedQuery.includes(pattern));
 }
 
+function isInsightQuestion(query: string) {
+  const normalizedQuery = normalizeText(query);
+
+  return [
+    "insight",
+    "insights",
+    "blog",
+    "blogs",
+    "article",
+    "articles",
+    "what have you written",
+    "what did you write",
+    "wrote lately",
+    "thoughts on",
+    "point of view",
+    "clarity instead of hype",
+    "trust in ai interfaces",
+    "shipping fast",
+  ].some((pattern) => normalizedQuery.includes(pattern));
+}
+
+function isLikelyPortfolioQuestion(query: string) {
+  return (
+    isJobHistoryQuestion(query) ||
+    isTeachingQuestion(query) ||
+    isProjectQuestion(query) ||
+    isInsightQuestion(query) ||
+    scoreScope(query) >= 2
+  );
+}
+
+function isGreeting(query: string) {
+  const normalizedQuery = normalizeCompactText(query);
+
+  return [
+    "hi",
+    "hello",
+    "hey",
+    "hey there",
+    "hi there",
+    "good morning",
+    "good afternoon",
+    "good evening",
+  ].includes(normalizedQuery);
+}
+
+function isHelpPrompt(query: string) {
+  const normalizedQuery = normalizeCompactText(query);
+
+  return [
+    "help",
+    "what can you help with",
+    "what can i ask",
+    "what can i ask you",
+    "what should i ask",
+    "what do you know",
+    "what can you tell me about",
+    "who are you",
+    "introduce yourself",
+  ].includes(normalizedQuery);
+}
+
+function isLightConversation(query: string) {
+  const normalizedQuery = normalizeCompactText(query);
+
+  return [
+    "thanks",
+    "thank you",
+    "cool",
+    "nice",
+    "awesome",
+    "great",
+    "ok",
+    "okay",
+    "sounds good",
+    "bye",
+    "goodbye",
+    "see you",
+  ].includes(normalizedQuery);
+}
+
+function isPageRelativeQuestion(query: string) {
+  const normalizedQuery = normalizeCompactText(query);
+
+  return [
+    "this post",
+    "this article",
+    "this insight",
+    "this case study",
+    "this project",
+    "this page",
+    "summarize this",
+    "summarize this post",
+    "what is this post about",
+    "what is this article about",
+    "what is this about",
+    "what are the takeaways here",
+    "what are the main takeaways",
+    "tell me about this post",
+    "tell me about this article",
+  ].some((pattern) => normalizedQuery.includes(pattern));
+}
+
 const profileChunks: Array<KnowledgeChunk> = [
   {
     id: "profile-intro",
@@ -309,6 +451,12 @@ const profileChunks: Array<KnowledgeChunk> = [
     title: "Projects Summary",
     text: buildProjectsSummary(),
   },
+  {
+    id: "profile-insights-summary",
+    sourceType: "profile",
+    title: "Insights Summary",
+    text: buildInsightsSummary(),
+  },
   ...profileDocument.experienceEntries.map((entry, index) => ({
     id: `profile-experience-entry-${index + 1}`,
     sourceType: "profile" as const,
@@ -340,9 +488,29 @@ const projectChunks: Array<KnowledgeChunk> = projectDocuments.flatMap(
   ],
 );
 
+const insightChunks: Array<KnowledgeChunk> = insightPosts.flatMap((post, index) => [
+  {
+    id: `insight-${index + 1}`,
+    sourceType: "insight" as const,
+    title: post.title,
+    slug: post.slug,
+    text: stripMarkdown(post.excerpt || post.markdown),
+  },
+  ...post.sections
+    .filter((section) => section.content.length > 0)
+    .map((section) => ({
+      id: `insight-${post.slug}-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      sourceType: "insight" as const,
+      title: `${post.title} ${section.title}`,
+      slug: post.slug,
+      text: stripMarkdown(section.content),
+    })),
+]);
+
 export const portfolioKnowledgeBase: Array<KnowledgeChunk> = [
   ...profileChunks,
   ...projectChunks,
+  ...insightChunks,
 ];
 
 function scoreScope(query: string) {
@@ -365,6 +533,10 @@ function scoreScope(query: string) {
   }
 
   if (isProjectQuestion(query)) {
+    score += 3;
+  }
+
+  if (isInsightQuestion(query)) {
     score += 3;
   }
 
@@ -431,11 +603,47 @@ function scoreChunk(query: string, chunk: KnowledgeChunk) {
     }
   }
 
+  if (isInsightQuestion(query)) {
+    if (chunk.sourceType === "insight") {
+      score += 5;
+    }
+
+    if (chunk.title === "Insights Summary") {
+      score += 4;
+    }
+
+    if (/excerpt|content|takeaways/i.test(chunk.title)) {
+      score += 2;
+    }
+  }
+
   return score;
 }
 
-export function retrieveRelevantChunks(query: string, limit = 5) {
-  const scored = portfolioKnowledgeBase
+export function retrieveRelevantChunks(
+  query: string,
+  limit = 5,
+  pageContext?: PageContext,
+) {
+  let knowledgeBase = portfolioKnowledgeBase;
+
+  if (pageContext?.type === "insight" && isPageRelativeQuestion(query)) {
+    const matchingInsightChunks = portfolioKnowledgeBase.filter(
+      (chunk) => chunk.sourceType === "insight" && chunk.slug === pageContext.slug,
+    );
+
+    if (matchingInsightChunks.length > 0) {
+      knowledgeBase = [
+        ...matchingInsightChunks,
+        ...portfolioKnowledgeBase.filter(
+          (chunk) =>
+            !(chunk.sourceType === "insight" && chunk.slug === pageContext.slug),
+        ),
+      ];
+    }
+  }
+
+  const scored = knowledgeBase
     .map((chunk) => ({
       chunk,
       score: scoreChunk(query, chunk),
@@ -443,6 +651,22 @@ export function retrieveRelevantChunks(query: string, limit = 5) {
     .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
+
+  if (
+    scored.length === 0 &&
+    pageContext?.type === "insight" &&
+    isPageRelativeQuestion(query)
+  ) {
+    return knowledgeBase
+      .filter(
+        (chunk) => chunk.sourceType === "insight" && chunk.slug === pageContext.slug,
+      )
+      .slice(0, limit)
+      .map((chunk, index) => ({
+        chunk,
+        score: Math.max(limit - index + 2, 2),
+      }));
+  }
 
   if (scored.length > 0) {
     return scored;
@@ -489,12 +713,25 @@ export function retrieveRelevantChunks(query: string, limit = 5) {
       }));
   }
 
+  if (isInsightQuestion(query)) {
+    return portfolioKnowledgeBase
+      .filter(
+        (chunk) => chunk.sourceType === "insight" || chunk.title === "Insights Summary",
+      )
+      .slice(0, limit)
+      .map((chunk, index) => ({
+        chunk,
+        score: Math.max(limit - index, 1),
+      }));
+  }
+
   return scored;
 }
 
 export function shouldAnswerFromProfile(
   query: string,
   retrievedChunks: ReturnType<typeof retrieveRelevantChunks>,
+  pageContext?: PageContext,
 ) {
   const scopeScore = scoreScope(query);
   const topScore = retrievedChunks[0]?.score ?? 0;
@@ -504,12 +741,79 @@ export function shouldAnswerFromProfile(
   const hasStrongPortfolioIntent = scopeScore >= 2;
   const hasStrongRetrieval = topScore >= 3 || totalScore >= 5;
   const hasEnoughSignal = matchedChunkCount >= 2 || totalScore >= 4;
+  const isInsightPageRelativeQuestion =
+    pageContext?.type === "insight" &&
+    isPageRelativeQuestion(query) &&
+    retrievedChunks.some(
+      (entry) =>
+        entry.chunk.sourceType === "insight" &&
+        entry.chunk.slug === pageContext.slug,
+    );
 
-  if (isJobHistoryQuestion(query) || isProjectQuestion(query)) {
+  if (isInsightPageRelativeQuestion) {
+    return hasStrongRetrieval || hasEnoughSignal;
+  }
+
+  if (
+    isJobHistoryQuestion(query) ||
+    isProjectQuestion(query) ||
+    isInsightQuestion(query)
+  ) {
     return hasStrongRetrieval || hasEnoughSignal;
   }
 
   return hasStrongPortfolioIntent && hasStrongRetrieval && hasEnoughSignal;
+}
+
+export function classifyQueryIntent(
+  query: string,
+  retrievedChunks: ReturnType<typeof retrieveRelevantChunks>,
+  pageContext?: PageContext,
+): QueryIntent {
+  if (isGreeting(query) || isHelpPrompt(query) || isLightConversation(query)) {
+    return { mode: "smalltalk" };
+  }
+
+  if (
+    retrievedChunks.length > 0 &&
+    shouldAnswerFromProfile(query, retrievedChunks, pageContext)
+  ) {
+    return { mode: "answer" };
+  }
+
+  if (isInsightQuestion(query)) {
+    return {
+      mode: "clarify",
+      clarification:
+        "I think you're asking about one of my insights. Do you mean my writing on AI product clarity, trust in AI interfaces, or shipping fast without looking rushed?",
+    };
+  }
+
+  if (isProjectQuestion(query)) {
+    return {
+      mode: "clarify",
+      clarification:
+        "I think you're asking about one of my projects. I can talk about Fusion agent workflows, my Reachy Mini thesis, the farmers vision app, AgentsOnly.io, or the podcast agent. Which one would you like to explore?",
+    };
+  }
+
+  if (isJobHistoryQuestion(query) || isTeachingQuestion(query)) {
+    return {
+      mode: "clarify",
+      clarification:
+        "I can help with my role history and teaching background. Do you want to know about my current role, previous roles, or my teaching experience?",
+    };
+  }
+
+  if (isLikelyPortfolioQuestion(query)) {
+    return {
+      mode: "clarify",
+      clarification:
+        "I can help with my background, projects, and insights. Do you want to ask about my experience, something I've built, or something I've written?",
+    };
+  }
+
+  return { mode: "refuse" };
 }
 
 export function buildContextFromChunks(chunks: Array<KnowledgeChunk>) {
@@ -535,6 +839,10 @@ const FOLLOW_UP_LIBRARY: Array<{
   {
     matchTitles: ["Projects Summary"],
     question: "Would you like me to walk you through one of those projects in more detail?",
+  },
+  {
+    matchTitles: ["Insights Summary"],
+    question: "Would you like me to share another insight I have written about?",
   },
   {
     matchTitles: ["Core Skills", "Selected Technologies"],
@@ -567,6 +875,10 @@ export function getFollowUpQuestion(chunks: Array<KnowledgeChunk>) {
 
   if (chunks.some((chunk) => chunk.sourceType === "project")) {
     return "Would you like me to walk you through one of those projects in more detail?";
+  }
+
+  if (chunks.some((chunk) => chunk.sourceType === "insight")) {
+    return "Would you like me to share another insight I have written about?";
   }
 
   return "Would you like to explore another part of my background?";

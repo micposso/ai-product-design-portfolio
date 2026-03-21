@@ -120,7 +120,11 @@ export default async function Page({
         </section>
       </article>
 
-      <CaseStudyChat id={chatId} promptHint={caseStudy.prompt} />
+      <CaseStudyChat
+        id={chatId}
+        promptHint={caseStudy.prompt}
+        pageContext={{ type: "case-study", slug: caseStudy.slug }}
+      />
     </div>
   );
 }

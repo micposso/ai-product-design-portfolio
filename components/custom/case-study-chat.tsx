@@ -19,11 +19,22 @@ export function CaseStudyChat({
   promptHint,
   dockLabel = "Chat About This Work",
   overlayTitle = "Ask about this case study",
+  pageContext,
+  suggestedActions,
 }: {
   id: string;
   promptHint: string;
   dockLabel?: string;
   overlayTitle?: string;
+  pageContext?: {
+    type: "insight" | "case-study";
+    slug: string;
+  };
+  suggestedActions?: Array<{
+    title: string;
+    label: string;
+    action: string;
+  }>;
 }) {
   const {
     messages,
@@ -37,7 +48,7 @@ export function CaseStudyChat({
   } =
     useChat({
       id,
-      body: { id },
+      body: { id, pageContext },
       initialMessages: [],
       maxSteps: 10,
     });
@@ -100,14 +111,14 @@ export function CaseStudyChat({
                 initial={{ opacity: 0, scale: 0.98, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: 12 }}
-                className="flex size-full max-h-[86vh] max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-white/15 bg-background/96 p-4 shadow-[0_40px_120px_-48px_rgba(15,23,42,0.85)]"
+                className="flex size-full max-h-[86vh] max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-black p-4 text-zinc-100 shadow-[0_40px_120px_-48px_rgba(15,23,42,0.92)]"
               >
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+                    <p className="text-xs uppercase tracking-[0.24em] text-zinc-400">
                       Focus Mode
                     </p>
-                    <h2 className="text-lg font-medium text-zinc-950 dark:text-zinc-100">
+                    <h2 className="text-lg font-medium text-zinc-100">
                       {overlayTitle}
                     </h2>
                   </div>
@@ -140,6 +151,9 @@ export function CaseStudyChat({
                       setAttachments={setAttachments}
                       messages={messages}
                       append={append}
+                      textareaClassName="border border-white/10 bg-white/10 text-white placeholder:text-zinc-400 backdrop-blur-sm focus-visible:ring-zinc-500"
+                      suggestedActionsClassName="border-white/10 bg-white/10 text-white hover:bg-white/15 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                      suggestedActions={suggestedActions}
                     />
                   </form>
 

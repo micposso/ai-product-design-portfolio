@@ -19,7 +19,7 @@ import useWindowSize from "./use-window-size";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 
-const suggestedActions = [
+const defaultSuggestedActions = [
   {
     title: "Tell me about",
     label: "your professional experience",
@@ -32,6 +32,12 @@ const suggestedActions = [
   },
 ];
 
+type SuggestedAction = {
+  title: string;
+  label: string;
+  action: string;
+};
+
 export function MultimodalInput({
   input,
   setInput,
@@ -42,6 +48,9 @@ export function MultimodalInput({
   messages,
   append,
   handleSubmit,
+  textareaClassName,
+  suggestedActionsClassName,
+  suggestedActions = defaultSuggestedActions,
 }: {
   input: string;
   setInput: (value: string) => void;
@@ -60,6 +69,9 @@ export function MultimodalInput({
     },
     chatRequestOptions?: ChatRequestOptions,
   ) => void;
+  textareaClassName?: string;
+  suggestedActionsClassName?: string;
+  suggestedActions?: Array<SuggestedAction>;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -173,7 +185,7 @@ export function MultimodalInput({
                       content: suggestedAction.action,
                     });
                   }}
-                  className="border-none bg-muted/50 w-full text-left border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300 rounded-lg p-3 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex flex-col"
+                  className={`border-none bg-muted/50 w-full text-left border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300 rounded-lg p-3 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex flex-col ${suggestedActionsClassName ?? ""}`}
                 >
                   <span className="font-medium">{suggestedAction.title}</span>
                   <span className="text-zinc-500 dark:text-zinc-400">
@@ -219,7 +231,7 @@ export function MultimodalInput({
         placeholder="Send a message..."
         value={input}
         onChange={handleInput}
-        className="min-h-[24px] overflow-hidden resize-none rounded-lg text-base bg-muted border-none"
+        className={`min-h-[24px] overflow-hidden resize-none rounded-lg text-base bg-muted border-none ${textareaClassName ?? ""}`}
         rows={3}
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey) {

@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
-    "build": "next build",
+    "dev": "cmd /c node node_modules\\next\\dist\\bin\\next dev --turbo",
+    "build": "cmd /c node node_modules\\next\\dist\\bin\\next build",
     "migrate": "tsx db/migrate",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "cmd /c node node_modules\\next\\dist\\bin\\next start",
+    "lint": "cmd /c node node_modules\\next\\dist\\bin\\next lint"
   },
   "dependencies": {
     "@ai-sdk/google": "^0.0.51",
@@ -43,6 +43,7 @@
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "server-only": "^0.0.1",
+    "shiki": "^4.0.2",
     "sonner": "^1.5.0",
     "streamdown": "^1.6.7",
     "swr": "^2.2.5",

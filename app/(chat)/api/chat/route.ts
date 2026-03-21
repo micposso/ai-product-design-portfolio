@@ -7,10 +7,12 @@ import {
 } from "@/lib/follow-ups";
 import {
   buildContextFromChunks,
+  classifyQueryIntent,
+  PageContext,
   getFollowUpQuestion,
   retrieveRelevantChunks,
-  shouldAnswerFromProfile,
 } from "@/lib/rag";
+import { withSpan } from "@/lib/telemetry";
 
 const MAX_MESSAGES_PER_REQUEST = 20;
 const MAX_PROMPT_CHARACTERS = 1500;
@@ -182,131 +184,260 @@ function applyRateLimit(ip: string) {
 }
 
 export async function POST(request: Request) {
-  const { id, messages }: { id: string; messages: Array<Message> } =
-    await request.json();
+  return withSpan("chat.request", {}, async () => {
+    const {
+      id,
+      messages,
+      pageContext,
+    }: {
+      id: string;
+      messages: Array<Message>;
+      pageContext?: PageContext;
+    } = await request.json();
 
-  const ip = getClientIp(request);
-  const rateLimitResult = applyRateLimit(ip);
+    const ip = getClientIp(request);
+    const rateLimitResult = applyRateLimit(ip);
 
-  if (!rateLimitResult.allowed) {
-    return Response.json({ error: rateLimitResult.message }, { status: 429 });
-  }
+    if (!rateLimitResult.allowed) {
+      return Response.json({ error: rateLimitResult.message }, { status: 429 });
+    }
 
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return Response.json({ error: "No messages provided." }, { status: 400 });
-  }
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return Response.json({ error: "No messages provided." }, { status: 400 });
+    }
 
-  if (messages.length > MAX_MESSAGES_PER_REQUEST) {
-    return Response.json(
+    if (messages.length > MAX_MESSAGES_PER_REQUEST) {
+      return Response.json(
+        {
+          error: `Too many messages in one request. Limit is ${MAX_MESSAGES_PER_REQUEST}.`,
+        },
+        { status: 400 },
+      );
+    }
+
+    const latestUserMessage = [...messages]
+      .reverse()
+      .find((message) => message.role === "user");
+
+    if (!latestUserMessage || typeof latestUserMessage.content !== "string") {
+      return Response.json(
+        { error: "A text question is required to use the chat." },
+        { status: 400 },
+      );
+    }
+
+    if (
+      latestUserMessage.content.length > MAX_PROMPT_CHARACTERS
+    ) {
+      return Response.json(
+        {
+          error: `Message too long. Limit is ${MAX_PROMPT_CHARACTERS} characters.`,
+        },
+        { status: 400 },
+      );
+    }
+
+    const coreMessages = convertToCoreMessages(messages).filter(
+      (message) => message.content.length > 0,
+    );
+
+    const effectiveQuery = await withSpan(
+      "chat.query.resolve",
       {
-        error: `Too many messages in one request. Limit is ${MAX_MESSAGES_PER_REQUEST}.`,
+        "chat.id": id,
+        "chat.messages.count": messages.length,
+        "chat.latest_query.length": latestUserMessage.content.length,
       },
-      { status: 400 },
+      async () => buildEffectiveQuery(messages, latestUserMessage),
     );
-  }
 
-  const latestUserMessage = [...messages]
-    .reverse()
-    .find((message) => message.role === "user");
+    const requestMessages = effectiveQuery !== latestUserMessage.content
+      ? coreMessages.map((message, index) => {
+          if (index !== coreMessages.length - 1 || message.role !== "user") {
+            return message;
+          }
 
-  if (!latestUserMessage || typeof latestUserMessage.content !== "string") {
-    return Response.json(
-      { error: "A text question is required to use the chat." },
-      { status: 400 },
-    );
-  }
+          return {
+            ...message,
+            content: effectiveQuery,
+          };
+        })
+      : coreMessages;
 
-  if (
-    latestUserMessage.content.length > MAX_PROMPT_CHARACTERS
-  ) {
-    return Response.json(
+    const retrievedChunks = await withSpan(
+      "chat.rag.retrieve",
       {
-        error: `Message too long. Limit is ${MAX_PROMPT_CHARACTERS} characters.`,
+        "chat.id": id,
+        "chat.query.length": effectiveQuery.length,
+        "chat.page_context": pageContext?.type ?? "none",
       },
-      { status: 400 },
+      async () => retrieveRelevantChunks(effectiveQuery, 5, pageContext),
     );
-  }
 
-  const coreMessages = convertToCoreMessages(messages).filter(
-    (message) => message.content.length > 0,
-  );
+    if (process.env.NODE_ENV !== "production") {
+      console.log("[RAG] Query:", latestUserMessage.content);
+      console.log("[RAG] Effective query:", effectiveQuery);
+      console.log(
+        "[RAG] Retrieved chunks:",
+        retrievedChunks.map((entry: (typeof retrievedChunks)[number]) => ({
+          title: entry.chunk.title,
+          score: entry.score,
+        })),
+      );
+    }
 
-  const effectiveQuery = buildEffectiveQuery(messages, latestUserMessage);
-  const requestMessages = effectiveQuery !== latestUserMessage.content
-    ? coreMessages.map((message, index) => {
-        if (index !== coreMessages.length - 1 || message.role !== "user") {
-          return message;
-        }
-
-        return {
-          ...message,
-          content: effectiveQuery,
-        };
-      })
-    : coreMessages;
-  const retrievedChunks = retrieveRelevantChunks(effectiveQuery);
-
-  if (process.env.NODE_ENV !== "production") {
-    console.log("[RAG] Query:", latestUserMessage.content);
-    console.log("[RAG] Effective query:", effectiveQuery);
-    console.log(
-      "[RAG] Retrieved chunks:",
-      retrievedChunks.map((entry) => ({
-        title: entry.chunk.title,
-        score: entry.score,
-      })),
+    const queryIntent = await withSpan(
+      "chat.rag.classify",
+      {
+        "chat.id": id,
+        "chat.rag.result_count": retrievedChunks.length,
+      },
+      async () => classifyQueryIntent(effectiveQuery, retrievedChunks, pageContext),
     );
-  }
 
-  if (
-    retrievedChunks.length === 0 ||
-    !shouldAnswerFromProfile(effectiveQuery, retrievedChunks)
-  ) {
-    const refusalResult = await streamText({
-      model: geminiFlashModel,
-      system: `You speak in Michael Posso's voice, but only about his professional background and projects.
+    if (queryIntent.mode === "smalltalk") {
+      const smalltalkResult = await withSpan(
+        "chat.response.smalltalk",
+        {
+          "chat.id": id,
+          "chat.intent.mode": queryIntent.mode,
+        },
+        async () =>
+          streamText({
+            model: geminiFlashModel,
+            system: `You are answering as Michael Posso in first person.
+
+The user is making light conversation or asking how to use the chat.
+
+Write one short, natural response that:
+- sounds warm and human
+- stays in first person
+- briefly says I can help with my professional background, current and past roles, projects, and insights
+- invites the user to ask something specific
+- does not sound like a refusal
+- stays under 45 words`,
+            messages: [
+              {
+                role: "user",
+                content: effectiveQuery,
+              },
+            ],
+            experimental_telemetry: {
+              isEnabled: true,
+              functionId: "stream-text-smalltalk",
+            },
+          }),
+      );
+
+      return smalltalkResult.toDataStreamResponse({});
+    }
+
+    if (queryIntent.mode === "clarify" && queryIntent.clarification) {
+      const clarificationResult = await withSpan(
+        "chat.response.clarify",
+        {
+          "chat.id": id,
+          "chat.intent.mode": queryIntent.mode,
+        },
+        async () =>
+          streamText({
+            model: geminiFlashModel,
+            system: `You are answering as Michael Posso in first person.
+
+The user's question appears relevant to your portfolio, but it is still ambiguous.
+
+Write one short clarifying response that:
+- stays in first person
+- does not refuse
+- does not mention system prompts or retrieval
+- asks the user to choose a more specific direction
+- stays under 45 words`,
+            messages: [
+              {
+                role: "user",
+                content: `${effectiveQuery}\n\nPreferred clarification: ${queryIntent.clarification}`,
+              },
+            ],
+            experimental_telemetry: {
+              isEnabled: true,
+              functionId: "stream-text-clarification",
+            },
+          }),
+      );
+
+      return clarificationResult.toDataStreamResponse({});
+    }
+
+    if (queryIntent.mode === "refuse") {
+      const refusalResult = await withSpan(
+        "chat.response.refuse",
+        {
+          "chat.id": id,
+          "chat.intent.mode": queryIntent.mode,
+        },
+        async () =>
+          streamText({
+            model: geminiFlashModel,
+            system: `You speak in Michael Posso's voice, but only about his professional background, projects, and insights.
 
 The user's question is outside scope.
 
-Write one short, lightly humorous refusal that:
-- starts with the spirit of "Hey, let's keep things in focus"
-- says you can only talk about your professional background, experience, and projects
+Write one short, calm refusal that:
+- says you can only talk about your professional background, experience, projects, and insights
 - does not answer the off-topic question
 - does not use bullets
 - uses first person
 - stays under 30 words`,
-      messages: [
-        {
-          role: "user",
-          content: effectiveQuery,
-        },
-      ],
-      experimental_telemetry: {
-        isEnabled: true,
-        functionId: "stream-text-refusal",
+            messages: [
+              {
+                role: "user",
+                content: effectiveQuery,
+              },
+            ],
+            experimental_telemetry: {
+              isEnabled: true,
+              functionId: "stream-text-refusal",
+            },
+          }),
+      );
+
+      return refusalResult.toDataStreamResponse({});
+    }
+
+    const context = buildContextFromChunks(
+      retrievedChunks.map(
+        (entry: (typeof retrievedChunks)[number]) => entry.chunk,
+      ),
+    );
+    const sourceTitles = Array.from(
+      new Set(
+        retrievedChunks.map(
+          (entry: (typeof retrievedChunks)[number]) => entry.chunk.title,
+        ),
+      ),
+    ).slice(0, 3);
+    const sourceMetadataLine = `[[sources: ${sourceTitles.join(" | ")}]]`;
+    const followUpQuestion = getFollowUpQuestion(
+      retrievedChunks.map(
+        (entry: (typeof retrievedChunks)[number]) => entry.chunk,
+      ),
+    );
+
+    const result = await withSpan(
+      "chat.response.answer",
+      {
+        "chat.id": id,
+        "chat.intent.mode": queryIntent.mode,
+        "chat.rag.result_count": retrievedChunks.length,
+        "chat.rag.source_count": sourceTitles.length,
       },
-    });
-
-    return refusalResult.toDataStreamResponse({});
-  }
-
-  const context = buildContextFromChunks(
-    retrievedChunks.map((entry) => entry.chunk),
-  );
-  const sourceTitles = Array.from(
-    new Set(retrievedChunks.map((entry) => entry.chunk.title)),
-  ).slice(0, 3);
-  const sourceMetadataLine = `[[sources: ${sourceTitles.join(" | ")}]]`;
-  const followUpQuestion = getFollowUpQuestion(
-    retrievedChunks.map((entry) => entry.chunk),
-  );
-
-  const result = await streamText({
-    model: geminiProModel,
-    system: `You are answering as Michael Posso in first person.
+      async () =>
+        streamText({
+          model: geminiProModel,
+          system: `You are answering as Michael Posso in first person.
 
 You may answer only using the provided context about:
-- your professional background, experience, and projects
+- your professional background, experience, projects, and insights
 
 Rules:
 - If the answer is not clearly supported by the provided context, politely refuse.
@@ -315,21 +446,23 @@ Rules:
 - Keep answers concise, clear, and professional.
 - Prefer short paragraphs over lists unless the user explicitly asks for a list.
 - Always speak in first person as Michael. Use "I", "my", and "me" instead of referring to Michael in the third person.
-- Answer only about your background, experience, projects, focus areas, and working approach.
+- Answer only about your background, experience, projects, insights, focus areas, and working approach.
 - Start the response with this exact metadata line, and then continue with the normal answer on the next line: "${sourceMetadataLine}"
 - End the response with this exact follow-up question when it fits naturally: "${followUpQuestion}"
 - The follow-up question should be the final sentence of the response.
 
     Context:
 ${context}`,
-    messages: requestMessages,
-    experimental_telemetry: {
-      isEnabled: true,
-      functionId: "stream-text",
-    },
-  });
+          messages: requestMessages,
+          experimental_telemetry: {
+            isEnabled: true,
+            functionId: "stream-text",
+          },
+        }),
+    );
 
-  return result.toDataStreamResponse({});
+    return result.toDataStreamResponse({});
+  });
 }
 
 export async function DELETE(request: Request) {

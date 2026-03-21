@@ -45,28 +45,37 @@ export default async function Page({
 
         <section className="rounded-[2rem] border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
           <div className="space-y-6 text-base leading-8 text-zinc-600 dark:text-zinc-300">
-            <p>
-              Placeholder blog content goes here. This page is set up like a
-              long-form post so you can write about product strategy, AI
-              implementation details, design decisions, or lessons learned from
-              recent work.
-            </p>
-            <p>
-              The idea is to give readers enough context to understand how you
-              think, not just what you shipped. Over time, this can become a
-              library of essays, launch notes, teardown posts, or technical
-              reflections.
-            </p>
-            <p>
-              This page uses the same floating chat pattern as the case study
-              pages, so readers can explore the writing first and then start a
-              focused conversation without losing their place.
-            </p>
-            <p>
-              Add more sections, images, quotes, diagrams, or code blocks here
-              as needed. For now, this is placeholder copy to make the route and
-              interaction model real.
-            </p>
+            {post.sections
+              .filter((section) => section.title !== "Excerpt")
+              .map((section) => (
+                <div key={section.title} className="space-y-4">
+                  <h2 className="text-2xl font-medium text-zinc-950 dark:text-zinc-100">
+                    {section.title}
+                  </h2>
+                  {section.content
+                    .split(/\n\n+/)
+                    .map((paragraph) => paragraph.trim())
+                    .filter(Boolean)
+                    .map((paragraph, index) =>
+                      paragraph.startsWith("- ") ? (
+                        <ul
+                          key={`${section.title}-${index}`}
+                          className="list-disc space-y-2 pl-6"
+                        >
+                          {paragraph
+                            .split("\n")
+                            .map((line) => line.replace(/^\-\s*/, "").trim())
+                            .filter(Boolean)
+                            .map((line) => (
+                              <li key={line}>{line}</li>
+                            ))}
+                        </ul>
+                      ) : (
+                        <p key={`${section.title}-${index}`}>{paragraph}</p>
+                      ),
+                    )}
+                </div>
+              ))}
           </div>
         </section>
       </article>
@@ -75,7 +84,20 @@ export default async function Page({
         id={chatId}
         promptHint={post.prompt}
         dockLabel="Chat About This Post"
-        overlayTitle="Ask about this insight"
+        overlayTitle="Ask about this post"
+        pageContext={{ type: "insight", slug: post.slug }}
+        suggestedActions={[
+          {
+            title: "What is this",
+            label: "post about?",
+            action: "What is this post about?",
+          },
+          {
+            title: "Where can I",
+            label: "see this project",
+            action: "Where can I see this project",
+          },
+        ]}
       />
     </div>
   );
