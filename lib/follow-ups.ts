@@ -1,5 +1,6 @@
 const FOLLOW_UP_QUESTIONS = [
   "Would you like to learn about my personal projects?",
+  "Would you like me to walk you through one of those projects in more detail?",
   "Would you like me to walk through the tools and technologies I use most often?",
   "Would you like a quick overview of my current role and focus areas?",
   "Would you like to hear how those interests connect to the products I build?",

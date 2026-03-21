@@ -1,7 +1,8 @@
 import { FollowUpQuestion } from "./follow-ups";
 import { profileDocument } from "./profile";
+import { projectDocuments } from "./projects";
 
-type SourceType = "profile";
+type SourceType = "profile" | "project";
 
 export type KnowledgeChunk = {
   id: string;
@@ -20,7 +21,6 @@ const STOP_WORDS = new Set([
   "as",
   "at",
   "be",
-  "built",
   "do",
   "for",
   "from",
@@ -30,7 +30,6 @@ const STOP_WORDS = new Set([
   "in",
   "is",
   "it",
-  "lately",
   "me",
   "my",
   "of",
@@ -46,7 +45,7 @@ const STOP_WORDS = new Set([
   "your",
 ]);
 
-const PROFILE_SCOPE_TERMS = [
+const PORTFOLIO_SCOPE_TERMS = [
   "michael",
   "posso",
   "experience",
@@ -88,11 +87,26 @@ const PROFILE_SCOPE_TERMS = [
   "assistant",
   "assistants",
   "agent",
+  "agents",
   "workflow",
   "workflows",
   "launch",
   "prototype",
   "shipping",
+  "project",
+  "projects",
+  "build",
+  "built",
+  "building",
+  "working",
+  "recent",
+  "lately",
+  "thesis",
+  "reachy",
+  "farmers",
+  "vision",
+  "podcast",
+  "trust",
 ];
 
 function stripMarkdown(text: string) {
@@ -103,6 +117,21 @@ function stripMarkdown(text: string) {
     .replace(/`/g, "")
     .replace(/\r\n/g, "\n")
     .trim();
+}
+
+function normalizeText(text: string) {
+  return text.toLowerCase();
+}
+
+function tokenize(text: string) {
+  return normalizeText(text)
+    .split(/[^a-z0-9]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 1 && !STOP_WORDS.has(token));
+}
+
+function uniqueTokens(text: string) {
+  return new Set(tokenize(text));
 }
 
 function buildExperienceSummary() {
@@ -165,19 +194,80 @@ function buildTeachingSummary() {
     .join(" ");
 }
 
-function normalizeText(text: string) {
-  return text.toLowerCase();
+function buildProjectsSummary() {
+  if (projectDocuments.length === 0) {
+    return "";
+  }
+
+  return projectDocuments
+    .map((project) => `${project.title}: ${stripMarkdown(project.summary)}`)
+    .join(" ");
 }
 
-function tokenize(text: string) {
-  return normalizeText(text)
-    .split(/[^a-z0-9]+/)
-    .map((token) => token.trim())
-    .filter((token) => token.length > 1 && !STOP_WORDS.has(token));
+function isJobHistoryQuestion(query: string) {
+  const normalizedQuery = normalizeText(query);
+
+  return [
+    "last job",
+    "last role",
+    "latest job",
+    "current job",
+    "current role",
+    "where do you work",
+    "where did you work",
+    "what was your last job",
+    "what is your last job",
+    "what was your previous job",
+    "what did you do before",
+    "where did you work before",
+    "who did you work for",
+    "previous job",
+    "previous role",
+    "previous company",
+    "past job",
+    "job history",
+    "work history",
+  ].some((pattern) => normalizedQuery.includes(pattern));
 }
 
-function uniqueTokens(text: string) {
-  return new Set(tokenize(text));
+function isTeachingQuestion(query: string) {
+  const normalizedQuery = normalizeText(query);
+
+  return [
+    "teaching experience",
+    "teach",
+    "teaching",
+    "professor",
+    "adjunct",
+    "nyit",
+    "fit",
+  ].some((pattern) => normalizedQuery.includes(pattern));
+}
+
+function isProjectQuestion(query: string) {
+  const normalizedQuery = normalizeText(query);
+
+  return [
+    "what have you built",
+    "built lately",
+    "what are you building",
+    "working on",
+    "recent project",
+    "recent projects",
+    "projects",
+    "project",
+    "thesis",
+    "reachy",
+    "embodied ai",
+    "farmers",
+    "west africa",
+    "pests",
+    "agentsonly",
+    "agentsonly.io",
+    "podcast",
+    "tts",
+    "voice",
+  ].some((pattern) => normalizedQuery.includes(pattern));
 }
 
 const profileChunks: Array<KnowledgeChunk> = [
@@ -213,6 +303,12 @@ const profileChunks: Array<KnowledgeChunk> = [
     title: "Teaching Experience",
     text: buildTeachingSummary(),
   },
+  {
+    id: "profile-projects-summary",
+    sourceType: "profile",
+    title: "Projects Summary",
+    text: buildProjectsSummary(),
+  },
   ...profileDocument.experienceEntries.map((entry, index) => ({
     id: `profile-experience-entry-${index + 1}`,
     sourceType: "profile" as const,
@@ -223,14 +319,38 @@ const profileChunks: Array<KnowledgeChunk> = [
   })),
 ];
 
-export const portfolioKnowledgeBase: Array<KnowledgeChunk> = [...profileChunks];
+const projectChunks: Array<KnowledgeChunk> = projectDocuments.flatMap(
+  (project, index) => [
+    {
+      id: `project-${index + 1}`,
+      sourceType: "project" as const,
+      title: project.title,
+      slug: project.slug,
+      text: stripMarkdown(project.summary || project.markdown),
+    },
+    ...project.sections
+      .filter((section) => section.content.length > 0)
+      .map((section) => ({
+        id: `project-${project.slug}-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+        sourceType: "project" as const,
+        title: `${project.title} ${section.title}`,
+        slug: project.slug,
+        text: stripMarkdown(section.content),
+      })),
+  ],
+);
+
+export const portfolioKnowledgeBase: Array<KnowledgeChunk> = [
+  ...profileChunks,
+  ...projectChunks,
+];
 
 function scoreScope(query: string) {
   const normalizedQuery = normalizeText(query);
   const queryTokens = Array.from(uniqueTokens(query));
   let score = 0;
 
-  for (const token of PROFILE_SCOPE_TERMS) {
+  for (const token of PORTFOLIO_SCOPE_TERMS) {
     if (normalizedQuery.includes(token) || queryTokens.includes(token)) {
       score += 1;
     }
@@ -244,48 +364,11 @@ function scoreScope(query: string) {
     score += 3;
   }
 
+  if (isProjectQuestion(query)) {
+    score += 3;
+  }
+
   return score;
-}
-
-function isJobHistoryQuestion(query: string) {
-  const normalizedQuery = normalizeText(query);
-
-  return [
-    "last job",
-    "last role",
-    "latest job",
-    "current job",
-    "current role",
-    "where do you work",
-    "where did you work",
-    "what was your last job",
-    "what is your last job",
-    "what was your previous job",
-    "what did you do before",
-    "where did you work before",
-    "who did you work for",
-    "previous job",
-    "previous role",
-    "previous company",
-    "past job",
-    "job history",
-    "work history",
-    "teaching experience",
-  ].some((pattern) => normalizedQuery.includes(pattern));
-}
-
-function isTeachingQuestion(query: string) {
-  const normalizedQuery = normalizeText(query);
-
-  return [
-    "teaching experience",
-    "teach",
-    "teaching",
-    "professor",
-    "adjunct",
-    "nyit",
-    "fit",
-  ].some((pattern) => normalizedQuery.includes(pattern));
 }
 
 function scoreChunk(query: string, chunk: KnowledgeChunk) {
@@ -330,6 +413,22 @@ function scoreChunk(query: string, chunk: KnowledgeChunk) {
 
   if (isTeachingQuestion(query) && chunk.title === "Teaching Experience") {
     score += 6;
+  }
+
+  if (isProjectQuestion(query)) {
+    if (chunk.sourceType === "project") {
+      score += 5;
+    }
+
+    if (["Projects Summary"].includes(chunk.title)) {
+      score += 4;
+    }
+
+    if (
+      /what i built|summary|outcome|stack/i.test(chunk.title)
+    ) {
+      score += 2;
+    }
   }
 
   return score;
@@ -378,6 +477,18 @@ export function retrieveRelevantChunks(query: string, limit = 5) {
       }));
   }
 
+  if (isProjectQuestion(query)) {
+    return portfolioKnowledgeBase
+      .filter(
+        (chunk) => chunk.sourceType === "project" || chunk.title === "Projects Summary",
+      )
+      .slice(0, limit)
+      .map((chunk, index) => ({
+        chunk,
+        score: Math.max(limit - index, 1),
+      }));
+  }
+
   return scored;
 }
 
@@ -390,16 +501,15 @@ export function shouldAnswerFromProfile(
   const totalScore = retrievedChunks.reduce((sum, entry) => sum + entry.score, 0);
   const matchedChunkCount = retrievedChunks.length;
 
-  const hasStrongProfileIntent = scopeScore >= 2;
+  const hasStrongPortfolioIntent = scopeScore >= 2;
   const hasStrongRetrieval = topScore >= 3 || totalScore >= 5;
   const hasEnoughSignal = matchedChunkCount >= 2 || totalScore >= 4;
-  const hasJobHistoryIntent = isJobHistoryQuestion(query);
 
-  if (hasJobHistoryIntent) {
+  if (isJobHistoryQuestion(query) || isProjectQuestion(query)) {
     return hasStrongRetrieval || hasEnoughSignal;
   }
 
-  return hasStrongProfileIntent && hasStrongRetrieval && hasEnoughSignal;
+  return hasStrongPortfolioIntent && hasStrongRetrieval && hasEnoughSignal;
 }
 
 export function buildContextFromChunks(chunks: Array<KnowledgeChunk>) {
@@ -421,6 +531,10 @@ const FOLLOW_UP_LIBRARY: Array<{
   {
     matchTitles: ["Professional Experience"],
     question: "Would you like to learn about my personal projects?",
+  },
+  {
+    matchTitles: ["Projects Summary"],
+    question: "Would you like me to walk you through one of those projects in more detail?",
   },
   {
     matchTitles: ["Core Skills", "Selected Technologies"],
@@ -449,6 +563,10 @@ export function getFollowUpQuestion(chunks: Array<KnowledgeChunk>) {
     if (match) {
       return match.question;
     }
+  }
+
+  if (chunks.some((chunk) => chunk.sourceType === "project")) {
+    return "Would you like me to walk you through one of those projects in more detail?";
   }
 
   return "Would you like to explore another part of my background?";
