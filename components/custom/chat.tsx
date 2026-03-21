@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { Message as PreviewMessage } from "@/components/custom/message";
 import { TypingIndicator } from "@/components/custom/typing-indicator";
+import { usePersistedChatState } from "@/components/custom/use-persisted-chat-state";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
 
 import { ImageCarousel } from "./image-carousel";
@@ -19,7 +20,16 @@ export function Chat({
   id: string;
   initialMessages: Array<Message>;
 }) {
-  const { messages, handleSubmit, input, setInput, append, isLoading, stop } =
+  const {
+    messages,
+    handleSubmit,
+    input,
+    setInput,
+    setMessages,
+    append,
+    isLoading,
+    stop,
+  } =
     useChat({
       id,
       body: { id },
@@ -31,6 +41,14 @@ export function Chat({
     useScrollToBottom<HTMLDivElement>();
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
+
+  usePersistedChatState({
+    storageKey: `portfolio-chat-home:${id}`,
+    input,
+    setInput,
+    messages,
+    setMessages,
+  });
 
   return (
     <div className="h-dvh overflow-hidden bg-background pt-16 pb-6 md:pt-20 md:pb-8">

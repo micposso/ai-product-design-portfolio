@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 
 import { Message as PreviewMessage } from "@/components/custom/message";
 import { TypingIndicator } from "@/components/custom/typing-indicator";
+import { usePersistedChatState } from "@/components/custom/use-persisted-chat-state";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
 
 import { MultimodalInput } from "./multimodal-input";
@@ -24,7 +25,16 @@ export function CaseStudyChat({
   dockLabel?: string;
   overlayTitle?: string;
 }) {
-  const { messages, handleSubmit, input, setInput, append, isLoading, stop } =
+  const {
+    messages,
+    handleSubmit,
+    input,
+    setInput,
+    setMessages,
+    append,
+    isLoading,
+    stop,
+  } =
     useChat({
       id,
       body: { id },
@@ -36,6 +46,14 @@ export function CaseStudyChat({
   const [isFocused, setIsFocused] = useState(false);
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
+
+  usePersistedChatState({
+    storageKey: `portfolio-chat-context:${id}`,
+    input,
+    setInput,
+    messages,
+    setMessages,
+  });
 
   useEffect(() => {
     if (!isFocused) {
