@@ -1,9 +1,10 @@
+import { caseStudies } from "./case-studies";
 import { FollowUpQuestion } from "./follow-ups";
 import { insightPosts } from "./insights";
 import { profileDocument } from "./profile";
 import { projectDocuments } from "./projects";
 
-type SourceType = "profile" | "project" | "insight";
+type SourceType = "profile" | "project" | "insight" | "case-study";
 
 export type KnowledgeChunk = {
   id: string;
@@ -507,10 +508,39 @@ const insightChunks: Array<KnowledgeChunk> = insightPosts.flatMap((post, index) 
     })),
 ]);
 
+const caseStudyChunks: Array<KnowledgeChunk> = caseStudies.flatMap(
+  (caseStudy, index) => [
+    {
+      id: `case-study-${index + 1}`,
+      sourceType: "case-study" as const,
+      title: caseStudy.title,
+      slug: caseStudy.slug,
+      text: stripMarkdown(
+        `${caseStudy.eyebrow}\n${caseStudy.subtitle}\n${caseStudy.summary}\n${caseStudy.challenge}\n${caseStudy.outcome}`,
+      ),
+    },
+    {
+      id: `case-study-${caseStudy.slug}-challenge`,
+      sourceType: "case-study" as const,
+      title: `${caseStudy.title} Challenge`,
+      slug: caseStudy.slug,
+      text: stripMarkdown(caseStudy.challenge),
+    },
+    {
+      id: `case-study-${caseStudy.slug}-outcome`,
+      sourceType: "case-study" as const,
+      title: `${caseStudy.title} Outcome`,
+      slug: caseStudy.slug,
+      text: stripMarkdown(caseStudy.outcome),
+    },
+  ],
+);
+
 export const portfolioKnowledgeBase: Array<KnowledgeChunk> = [
   ...profileChunks,
   ...projectChunks,
   ...insightChunks,
+  ...caseStudyChunks,
 ];
 
 function scoreScope(query: string) {
@@ -643,6 +673,22 @@ export function retrieveRelevantChunks(
     }
   }
 
+  if (pageContext?.type === "case-study" && isPageRelativeQuestion(query)) {
+    const matchingCaseStudyChunks = portfolioKnowledgeBase.filter(
+      (chunk) => chunk.sourceType === "case-study" && chunk.slug === pageContext.slug,
+    );
+
+    if (matchingCaseStudyChunks.length > 0) {
+      knowledgeBase = [
+        ...matchingCaseStudyChunks,
+        ...knowledgeBase.filter(
+          (chunk) =>
+            !(chunk.sourceType === "case-study" && chunk.slug === pageContext.slug),
+        ),
+      ];
+    }
+  }
+
   const scored = knowledgeBase
     .map((chunk) => ({
       chunk,
@@ -660,6 +706,23 @@ export function retrieveRelevantChunks(
     return knowledgeBase
       .filter(
         (chunk) => chunk.sourceType === "insight" && chunk.slug === pageContext.slug,
+      )
+      .slice(0, limit)
+      .map((chunk, index) => ({
+        chunk,
+        score: Math.max(limit - index + 2, 2),
+      }));
+  }
+
+  if (
+    scored.length === 0 &&
+    pageContext?.type === "case-study" &&
+    isPageRelativeQuestion(query)
+  ) {
+    return knowledgeBase
+      .filter(
+        (chunk) =>
+          chunk.sourceType === "case-study" && chunk.slug === pageContext.slug,
       )
       .slice(0, limit)
       .map((chunk, index) => ({
@@ -749,8 +812,16 @@ export function shouldAnswerFromProfile(
         entry.chunk.sourceType === "insight" &&
         entry.chunk.slug === pageContext.slug,
     );
+  const isCaseStudyPageRelativeQuestion =
+    pageContext?.type === "case-study" &&
+    isPageRelativeQuestion(query) &&
+    retrievedChunks.some(
+      (entry) =>
+        entry.chunk.sourceType === "case-study" &&
+        entry.chunk.slug === pageContext.slug,
+    );
 
-  if (isInsightPageRelativeQuestion) {
+  if (isInsightPageRelativeQuestion || isCaseStudyPageRelativeQuestion) {
     return hasStrongRetrieval || hasEnoughSignal;
   }
 
