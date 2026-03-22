@@ -34,16 +34,6 @@ const landingSuggestedActions = [
     label: "best represent your recent work?",
     action: "Which projects best represent your recent work right now?",
   },
-    {
-    title: "Which projects",
-    label: "best represent your recent work?",
-    action: "Which projects best represent your recent work right now?",
-  },
-    {
-    title: "Which projects",
-    label: "best represent your recent work?",
-    action: "Which projects best represent your recent work right now?",
-  },
 ];
 
 export function Chat({

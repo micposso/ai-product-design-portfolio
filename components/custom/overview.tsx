@@ -26,7 +26,7 @@ export const Overview = ({
   carousel?: ReactNode;
 }) => {
   return (
-    <section className="w-full p-4 sm:p-6 lg:min-h-[calc(100svh-7rem)] lg:p-8">
+    <section className="w-full p-3 sm:p-6 lg:min-h-[calc(100svh-7rem)] lg:p-8">
       <div className="flex flex-col gap-4">
         <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
           <motion.div
@@ -70,9 +70,9 @@ export const Overview = ({
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, ease: "easeOut", delay: 0.04 }}
-              className="flex w-full items-center justify-between gap-3"
+              className="flex w-full flex-wrap items-start justify-between gap-3 sm:items-center"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   asChild
                   variant="outline"
@@ -91,14 +91,16 @@ export const Overview = ({
                 </Button>
               </div>
 
-              <ThemeToggle />
+              <div className="ml-auto shrink-0">
+                <ThemeToggle />
+              </div>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 32 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, ease: "easeOut", delay: 0.08 }}
-              className="h-[440px] overflow-hidden rounded-2xl bg-[#f7f1ea] shadow-[0_40px_110px_-52px_rgba(28,23,19,0.5)]"
+              className="h-[460px] overflow-hidden rounded-2xl bg-[#f7f1ea] shadow-[0_40px_110px_-52px_rgba(28,23,19,0.5)] sm:h-[520px] lg:h-[620px]"
             >
               <div className="flex h-full flex-col p-2">
                 <motion.div
