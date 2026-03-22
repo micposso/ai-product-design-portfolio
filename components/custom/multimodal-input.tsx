@@ -168,7 +168,7 @@ export function MultimodalInput({
       {messages.length === 0 &&
         attachments.length === 0 &&
         uploadQueue.length === 0 && (
-          <div className="grid sm:grid-cols-2 gap-4 w-full md:px-0 mx-auto md:max-w-[500px]">
+          <div className="grid w-full gap-3 md:px-0 md:max-w-none sm:grid-cols-2">
             {suggestedActions.map((suggestedAction, index) => (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -185,10 +185,12 @@ export function MultimodalInput({
                       content: suggestedAction.action,
                     });
                   }}
-                  className={`border-none bg-muted/50 w-full text-left border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300 rounded-lg p-3 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex flex-col ${suggestedActionsClassName ?? ""}`}
+                  className={`w-full rounded-lg border border-zinc-200 bg-muted/50 p-3 text-left text-sm text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 ${suggestedActionsClassName ?? ""}`}
                 >
-                  <span className="font-medium">{suggestedAction.title}</span>
-                  <span className="text-zinc-500 dark:text-zinc-400">
+                  <span className="font-medium text-inherit">
+                    {suggestedAction.title}
+                  </span>
+                  <span className="mt-1 text-zinc-500 dark:text-zinc-400">
                     {suggestedAction.label}
                   </span>
                 </button>
@@ -228,7 +230,7 @@ export function MultimodalInput({
 
       <Textarea
         ref={textareaRef}
-        placeholder="Send a message..."
+        placeholder="Ask about launches, systems, or the thinking behind the work..."
         value={input}
         onChange={handleInput}
         className={`min-h-[24px] overflow-hidden resize-none rounded-lg text-base bg-muted border-none ${textareaClassName ?? ""}`}
@@ -248,7 +250,7 @@ export function MultimodalInput({
 
       {isLoading ? (
         <Button
-          className="rounded-full p-1.5 h-fit absolute bottom-2 right-2 m-0.5 text-white"
+          className="absolute bottom-3 right-3 m-0.5 h-fit rounded-full bg-[#1d3d33] p-1.5 text-white hover:bg-[#173128]"
           onClick={(event) => {
             event.preventDefault();
             stop();
@@ -258,7 +260,7 @@ export function MultimodalInput({
         </Button>
       ) : (
         <Button
-          className="rounded-full p-1.5 h-fit absolute bottom-2 right-2 m-0.5 text-white"
+          className="absolute bottom-3 right-3 m-0.5 h-fit rounded-full bg-[#1d3d33] p-1.5 text-white hover:bg-[#173128]"
           onClick={(event) => {
             event.preventDefault();
             submitForm();
@@ -270,7 +272,7 @@ export function MultimodalInput({
       )}
 
       <Button
-        className="rounded-full p-1.5 h-fit absolute bottom-2 right-10 m-0.5 dark:border-zinc-700"
+        className="absolute bottom-3 right-11 m-0.5 h-fit rounded-full border-[#d2c3b6] bg-white/80 p-1.5 hover:bg-[#f4ebdf] dark:border-zinc-700"
         onClick={(event) => {
           event.preventDefault();
           fileInputRef.current?.click();

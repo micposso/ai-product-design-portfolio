@@ -80,14 +80,14 @@ export function ImageCarousel({
   }, []);
 
   return (
-    <div className="mb-6 flex w-full max-w-[920px] flex-col gap-4 overflow-hidden">
+    <div className="flex w-full flex-col gap-4 overflow-hidden">
       <div className="flex items-center justify-between px-1">
         <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
-            Featured Work
+          <p className="text-xs uppercase tracking-[0.24em] text-white/70 dark:text-white/70">
+            Recent proof
           </p>
-          <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
-            Explore recent builds
+          <h2 className="text-lg font-medium text-white">
+            Explore recent builds through the same conversation
           </h2>
         </div>
 
@@ -98,7 +98,7 @@ export function ImageCarousel({
           type="button"
           variant="outline"
           size="icon"
-          className="hidden shrink-0 rounded-full bg-background/85 backdrop-blur md:flex"
+          className="hidden shrink-0 rounded-full border-white/60 bg-white/70 backdrop-blur md:flex"
           onClick={() => scrollByAmount("left")}
           aria-label="Scroll carousel left"
         >
@@ -115,9 +115,9 @@ export function ImageCarousel({
             <Link
               key={card.slug}
               href={`/case-study/${card.slug}`}
-              className="group relative w-[calc(100%-3rem)] min-w-[260px] snap-start overflow-hidden rounded-[2rem] border border-white/20 text-left shadow-[0_20px_60px_-24px_rgba(15,23,42,0.65)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_80px_-30px_rgba(15,23,42,0.85)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-[320px] sm:min-w-[320px] md:w-[calc((100%-2rem)/3)] md:min-w-[calc((100%-2rem)/3)]"
+              className="group relative w-[calc(100%-3rem)] min-w-[260px] snap-start overflow-hidden rounded-xl border border-white/30 text-left shadow-[0_22px_70px_-34px_rgba(35,25,18,0.45)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-38px_rgba(35,25,18,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-[320px] sm:min-w-[320px] md:w-[calc((100%-2rem)/3)] md:min-w-[calc((100%-2rem)/3)]"
             >
-              <div className="relative h-[272px] w-full overflow-hidden rounded-[2rem]">
+              <div className="relative h-[272px] w-full overflow-hidden rounded-xl">
                 <Image
                   src={card.image}
                   alt={card.title}
@@ -126,8 +126,11 @@ export function ImageCarousel({
                   className="object-cover transition duration-500 group-hover:scale-[1.03]"
                   priority={index === 0}
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1f1914]/78 via-[#1f1914]/20 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-5">
+
                   <h3 className="text-xl font-medium text-white">{card.title}</h3>
+            
                 </div>
               </div>
             </Link>
@@ -138,7 +141,7 @@ export function ImageCarousel({
           type="button"
           variant="outline"
           size="icon"
-          className="hidden shrink-0 rounded-full bg-background/85 backdrop-blur md:flex"
+          className="hidden shrink-0 rounded-full border-white/60 bg-white/70 backdrop-blur md:flex"
           onClick={() => scrollByAmount("right")}
           aria-label="Scroll carousel right"
         >

@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Roboto, Space_Grotesk } from "next/font/google";
+import { Domine, Lato, Space_Grotesk } from "next/font/google";
 import Script from "next/script";
 import { Toaster } from "sonner";
 
@@ -8,9 +8,10 @@ import { ThemeProvider } from "@/components/custom/theme-provider";
 
 import "./globals.css";
 
-const roboto = Roboto({
+const lato = Lato({
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["300", "400", "700", "900"],
+  style: ["normal", "italic"],
   variable: "--font-body",
 });
 
@@ -18,6 +19,12 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["700"],
   variable: "--font-heading",
+});
+
+const domine = Domine({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
@@ -33,7 +40,9 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${roboto.variable} ${spaceGrotesk.variable} antialiased`}>
+      <body
+        className={`${lato.variable} ${spaceGrotesk.variable} ${domine.variable} antialiased`}
+      >
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-3WCMHMMGEW"
           strategy="afterInteractive"
