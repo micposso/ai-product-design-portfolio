@@ -13,8 +13,8 @@ export default function Page() {
           </div>
 
           <div className="flex min-h-0 flex-col gap-4">
-            <div className="flex w-full items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                 <Link
                   href="/"
                   className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
@@ -37,7 +37,7 @@ export default function Page() {
                   Education
                 </span>
               </div>
-              <div className="ml-auto shrink-0">
+              <div className="self-end sm:ml-auto sm:self-auto shrink-0">
                 <ThemeToggle />
               </div>
             </div>

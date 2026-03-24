@@ -114,9 +114,9 @@ export function ImageCarousel({
             <Link
               key={card.slug}
               href={`/case-study/${card.slug}`}
-              className="group relative w-[calc(100%-3rem)] min-w-[260px] snap-start overflow-hidden rounded-xl border border-[color:var(--editorial-border)] text-left shadow-[var(--editorial-shadow)] transition duration-300 hover:-translate-y-1 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-[320px] sm:min-w-[320px] md:w-[calc((100%-2rem)/3)] md:min-w-[calc((100%-2rem)/3)]"
+              className="group relative w-[85vw] min-w-[85vw] max-w-full snap-start overflow-hidden rounded-xl border border-[color:var(--editorial-border)] text-left shadow-[var(--editorial-shadow)] transition duration-300 hover:-translate-y-1 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-[320px] sm:min-w-[320px] md:w-[calc((100%-2rem)/3)] md:min-w-[calc((100%-2rem)/3)]"
             >
-              <div className="relative h-[272px] w-full overflow-hidden rounded-xl">
+              <div className="relative h-[240px] w-full overflow-hidden rounded-xl sm:h-[272px]">
                 <Image
                   src={card.image}
                   alt={card.title}
@@ -125,9 +125,11 @@ export function ImageCarousel({
                   className="object-cover transition duration-500 group-hover:scale-[1.03] group-hover:brightness-[0.42]"
                   priority={index === 0}
                 />
-                <div className="absolute inset-0 z-10 bg-black/10 transition duration-300 group-hover:bg-black/48" />
-                <div className="absolute inset-x-0 bottom-0 z-20 flex translate-y-4 flex-col gap-1 p-5 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                  <h3 className="text-xl font-medium text-white">{card.title}</h3>
+                <div className="absolute inset-0 z-10 bg-black/36 transition duration-300 md:bg-black/10 md:group-hover:bg-black/48" />
+                <div className="absolute inset-x-0 bottom-0 z-20 flex translate-y-0 flex-col gap-1 p-4 opacity-100 transition duration-300 md:translate-y-4 md:p-5 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100">
+                  <h3 className="text-lg font-medium leading-6 text-white sm:text-xl">
+                    {card.title}
+                  </h3>
                 </div>
               </div>
             </Link>

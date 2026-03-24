@@ -13,9 +13,9 @@ export default function Page() {
             <SidebarBrandCard />
           </div>
 
-          <div className="flex min-h-0 flex-col gap-4">
-            <div className="flex w-full items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
+          <div className="flex min-h-0 min-w-0 flex-col gap-4">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                 <Link
                   href="/"
                   className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
@@ -38,7 +38,7 @@ export default function Page() {
                   Education
                 </Link>
               </div>
-              <div className="ml-auto shrink-0">
+              <div className="self-end sm:ml-auto sm:self-auto shrink-0">
                 <ThemeToggle />
               </div>
             </div>
@@ -49,7 +49,7 @@ export default function Page() {
                   <p className="editorial-sans editorial-subtle text-xs font-semibold uppercase tracking-[0.18em]">
                     Insights
                   </p>
-                  <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--editorial-text)] md:text-6xl">
+                  <h1 className="mt-3 break-words text-3xl font-bold tracking-tight text-[var(--editorial-text)] sm:text-4xl md:text-6xl">
                     Notes on product, AI, and design engineering.
                   </h1>
                   <p className="editorial-muted mt-4 max-w-2xl text-base leading-8 md:text-lg">
@@ -73,7 +73,7 @@ export default function Page() {
                             {post.category}
                           </span>
                         </div>
-                        <h2 className="text-2xl font-bold text-[var(--editorial-text)]">
+                        <h2 className="break-words text-2xl font-bold text-[var(--editorial-text)]">
                           {post.title}
                         </h2>
                         <p className="editorial-muted mt-3 max-w-3xl text-base leading-8">

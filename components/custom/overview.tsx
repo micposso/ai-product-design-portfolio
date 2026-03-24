@@ -37,9 +37,9 @@ export const Overview = ({
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, ease: "easeOut", delay: 0.04 }}
-              className="flex w-full flex-wrap items-start justify-between gap-3 sm:items-center"
+              className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
             >
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                 <Button
                   asChild
                   variant="outline"
@@ -74,7 +74,7 @@ export const Overview = ({
                 </Button>
               </div>
 
-              <div className="ml-auto shrink-0">
+              <div className="self-end sm:ml-auto sm:self-auto shrink-0">
                 <ThemeToggle />
               </div>
 

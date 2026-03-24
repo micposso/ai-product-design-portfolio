@@ -42,7 +42,7 @@ export function SidebarBrandCard() {
         </div>
       </div>
 
-      <div className="editorial-card h-[238px] min-w-[220px] rounded-xl border p-5 [container-type:inline-size]">
+      <div className="editorial-card min-w-0 w-full rounded-xl border p-5 [container-type:inline-size] sm:h-[238px] sm:min-w-[220px]">
         <Link href="/" className="flex w-full max-w-full items-start">
           <span className="font-display block w-full max-w-full text-[clamp(1rem,20cqw,3.35rem)] font-normal leading-none tracking-[-0.06em] text-[var(--editorial-text)]">
             <span className="whitespace-nowrap lg:hidden">MichaelPosso.ai</span>
@@ -56,7 +56,7 @@ export function SidebarBrandCard() {
             <p className="editorial-sans editorial-subtle text-xs font-semibold uppercase tracking-[0.18em]">
               Current focus
             </p>
-            <p className="mt-1 leading-6 text-[var(--editorial-text)]">
+            <p className="mt-1 break-words leading-6 text-[var(--editorial-text)]">
               {typedCurrentFocus}
               <motion.span
                 aria-hidden="true"

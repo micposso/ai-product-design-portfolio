@@ -32,10 +32,10 @@ export default async function Page({
             <SidebarBrandCard />
           </div>
 
-          <div className="flex min-h-0 flex-col gap-4">
+          <div className="flex min-h-0 min-w-0 flex-col gap-4">
             <div className="flex flex-col gap-3">
-              <div className="flex w-full flex-wrap items-start justify-between gap-3 sm:items-center">
-                <div className="flex flex-wrap items-center gap-2">
+              <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                   <Link
                     href="/"
                     className="editorial-sans inline-flex rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] transition hover:opacity-95"
@@ -61,7 +61,7 @@ export default async function Page({
                     Education
                   </Link>
                 </div>
-                <div className="ml-auto shrink-0">
+                <div className="self-end sm:ml-auto sm:self-auto shrink-0">
                   <ThemeToggle />
                 </div>
               </div>
@@ -79,7 +79,7 @@ export default async function Page({
                         <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
                           {caseStudy.eyebrow}
                         </p>
-                        <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--editorial-text)] md:text-6xl">
+                        <h1 className="mt-3 break-words text-3xl font-bold tracking-tight text-[var(--editorial-text)] sm:text-4xl md:text-6xl">
                           {caseStudy.title}
                         </h1>
                         <p className="mt-4 text-[0.95rem] leading-7 text-[var(--editorial-text)]">
@@ -148,7 +148,7 @@ export default async function Page({
                         <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
                           0{index + 1}
                         </p>
-                        <h2 className="mt-3 text-2xl font-bold text-[var(--editorial-text)]">
+                        <h2 className="mt-3 break-words text-2xl font-bold text-[var(--editorial-text)]">
                           {label}
                         </h2>
                         <p className="mt-3 text-[0.92rem] leading-7 text-[var(--editorial-text)]">
