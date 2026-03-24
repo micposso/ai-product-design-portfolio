@@ -113,7 +113,7 @@ export function SidebarAudioPlayer() {
   };
 
   return (
-    <div className="editorial-card hidden rounded-xl border px-4 py-4 md:block">
+    <div className="editorial-card hidden rounded-xl border p-4 md:block">
       <audio ref={audioRef} preload="metadata" src={AUDIO_SRC} />
 
       <div className="flex items-center gap-3">

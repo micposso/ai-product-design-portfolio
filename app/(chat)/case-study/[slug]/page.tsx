@@ -1,7 +1,7 @@
+import { CircleAlert, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CircleAlert, Sparkles } from "lucide-react";
 
 import { AnimatedCard } from "@/components/custom/animated-card";
 import { CaseStudyChat } from "@/components/custom/case-study-chat";

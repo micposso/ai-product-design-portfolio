@@ -64,7 +64,7 @@ export default async function Page({
 
             <AnimatedCard
               delay={0.08}
-              className="rounded-2xl bg-[var(--editorial-shell)] px-4 py-5 shadow-[0_30px_90px_-46px_rgba(28,23,19,0.24)] sm:px-6 sm:py-6 lg:px-8 lg:py-8"
+              className="rounded-2xl bg-[var(--editorial-shell)] px-4 py-5 shadow-[0_30px_90px_-46px_rgba(28,23,19,0.24)] sm:p-6 lg:p-8"
             >
               <div className="flex flex-col gap-8">
                 <AnimatedCard delay={0.14}>
