@@ -82,16 +82,16 @@ export function CaseStudyChat({
   return (
     <>
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6 md:pb-6">
-        <div className="pointer-events-auto flex w-full max-w-2xl items-end rounded-[1.75rem] border border-white/55 bg-[#f7f1ea]/82 p-3 shadow-[0_18px_50px_-22px_rgba(34,25,19,0.28)] backdrop-blur-xl">
+        <div className="editorial-card pointer-events-auto flex w-full max-w-2xl items-end rounded-[1.75rem] border p-3">
           <button
             type="button"
             onClick={() => setIsFocused(true)}
-            className="flex-1 rounded-[1.25rem] border border-white/70 bg-white/78 px-4 py-3 text-left shadow-[0_18px_48px_-36px_rgba(34,25,19,0.18)] transition hover:bg-white/90"
+            className="flex-1 rounded-xl border border-[color:var(--editorial-border)] bg-[var(--editorial-input)] px-4 py-3 text-left text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] transition hover:bg-[var(--editorial-input-hover)]"
           >
-            <span className="block text-xs uppercase tracking-[0.22em] text-[#8b725f]">
+            <span className="editorial-sans block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-placeholder)]">
               {dockLabel}
             </span>
-            <span className="mt-1 block text-sm text-[#4b3d31]">
+            <span className="mt-1 block text-sm text-[var(--editorial-text)]">
               {promptHint}
             </span>
           </button>
@@ -101,7 +101,7 @@ export function CaseStudyChat({
       <AnimatePresence>
         {isFocused ? (
           <motion.div
-            className="fixed inset-0 z-50 bg-[rgba(33,24,18,0.32)] backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-[var(--editorial-overlay)] backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -111,14 +111,14 @@ export function CaseStudyChat({
                 initial={{ opacity: 0, scale: 0.98, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: 12 }}
-                className="flex size-full max-h-[92dvh] max-w-3xl flex-col overflow-hidden rounded-3xl border border-white/50 bg-[#f7f1ea]/90 p-3 text-[#261d18] shadow-[0_40px_120px_-48px_rgba(34,25,19,0.45)] backdrop-blur-xl sm:max-h-[86vh] sm:rounded-[2rem] sm:p-4"
+                className="editorial-card flex w-full max-w-[820px] max-h-[92dvh] flex-col overflow-hidden rounded-3xl border p-3 text-[var(--editorial-text)] sm:max-h-[86vh] sm:rounded-[2rem] sm:p-4"
               >
                 <div className="mb-3 flex items-center justify-between sm:mb-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-[#8b725f]">
+                  <div className="border-l border-[color:var(--editorial-border)] pl-4">
+                    <p className="editorial-sans editorial-subtle text-xs font-semibold uppercase tracking-[0.16em]">
                       Focus Mode
                     </p>
-                    <h2 className="text-lg font-medium text-[#261d18]">
+                    <h2 className="text-lg font-medium text-[var(--editorial-text)]">
                       {overlayTitle}
                     </h2>
                   </div>
@@ -127,7 +127,7 @@ export function CaseStudyChat({
                     type="button"
                     variant="outline"
                     size="icon"
-                    className="rounded-full border-white/70 bg-white/70 text-[#4b3d31] hover:bg-white"
+                    className="editorial-card rounded-full border text-[var(--editorial-text)] hover:brightness-110"
                     onClick={() => setIsFocused(false)}
                     aria-label="Exit chat mode"
                   >
@@ -140,7 +140,7 @@ export function CaseStudyChat({
                     messages.length === 0 ? "justify-center" : ""
                   }`}
                 >
-                  <form className="flex w-full max-w-[560px] flex-row items-end gap-2">
+                  <form className="flex w-full max-w-[720px] flex-row items-end gap-2">
                     <MultimodalInput
                       input={input}
                       setInput={setInput}
@@ -151,15 +151,15 @@ export function CaseStudyChat({
                       setAttachments={setAttachments}
                       messages={messages}
                       append={append}
-                      textareaClassName="border border-white/70 bg-white/80 text-[#261d18] placeholder:text-[#8b725f] shadow-[0_26px_90px_-44px_rgba(34,25,19,0.18)] backdrop-blur-sm focus-visible:ring-[#876b56]"
-                      suggestedActionsClassName="border border-white/65 bg-[#f7f0e8] text-[#261d18] shadow-[0_18px_48px_-36px_rgba(34,25,19,0.18)] hover:bg-[#f1e6da]"
+                      textareaClassName="min-h-[104px] rounded-xl border border-[color:var(--editorial-border)] bg-[var(--editorial-input)] px-5 pb-14 pr-24 pt-4 text-[15px] leading-7 text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] placeholder:text-[var(--editorial-placeholder)] focus-visible:border-[color:var(--editorial-border)] focus-visible:ring-0 focus-visible:ring-offset-0"
+                      suggestedActionsClassName="border border-[color:var(--editorial-border)] bg-[var(--editorial-card)] text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] hover:brightness-110"
                       suggestedActions={suggestedActions}
                     />
                   </form>
 
                   <div
                     ref={messagesContainerRef}
-                    className="mt-4 flex min-h-0 w-full flex-1 flex-col items-center gap-4 overflow-y-auto overflow-x-hidden sm:mt-6"
+                    className="mt-4 flex min-h-0 w-full max-w-[720px] flex-1 flex-col items-center gap-4 overflow-y-auto overflow-x-hidden sm:mt-6"
                   >
                     {messages.map((message) => (
                       <PreviewMessage

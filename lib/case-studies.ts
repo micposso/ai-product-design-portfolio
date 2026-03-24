@@ -16,7 +16,7 @@ export const caseStudies: Array<CaseStudy> = [
     eyebrow: "AI Assistants",
     title: "Voice copilots and productized AI assistants",
     subtitle: "Voice, agent flows, productized copilots",
-    image: "/images/carousel-ai-assistant.svg",
+    image: "/images/portfolio-reachy.png",
     prompt: "Tell me about the AI assistants you have built.",
     summary:
       "Placeholder copy for an AI assistant case study. Use this space to describe the product vision, the user problem, and how the assistant fit into the overall business workflow.",
@@ -30,7 +30,7 @@ export const caseStudies: Array<CaseStudy> = [
     eyebrow: "Product Systems",
     title: "Designing and shipping polished product systems",
     subtitle: "Shipping polished experiences from concept to launch",
-    image: "/images/carousel-product-systems.svg",
+    image: "/images/portfolio-icons.png",
     prompt: "What product systems have you built lately?",
     summary:
       "Placeholder copy for a product systems case study. This area can explain the design system, the frontend architecture, and the product thinking behind the implementation.",
@@ -44,7 +44,7 @@ export const caseStudies: Array<CaseStudy> = [
     eyebrow: "Delivery Work",
     title: "Recent builds, launches, and execution velocity",
     subtitle: "Recent builds, launches, and execution velocity",
-    image: "/images/carousel-shipping.svg",
+    image: "/images/portfolio-green.jpg",
     prompt: "What have you built lately?",
     summary:
       "Placeholder copy for a delivery-focused case study. Use this section to talk through how ideas moved from brief to prototype to production launch.",
@@ -58,7 +58,7 @@ export const caseStudies: Array<CaseStudy> = [
     eyebrow: "Agent Workflows",
     title: "Operational AI systems and multi-step agent flows",
     subtitle: "Automations, orchestration, and operational AI systems",
-    image: "/images/carousel-ai-assistant.svg",
+    image: "/images/portfolio-reachy.png",
     prompt: "Tell me about the agent workflows you have built.",
     summary:
       "Placeholder copy for an agent workflows case study. Describe how multiple services, tools, and prompts were orchestrated into a coherent workflow.",
@@ -72,7 +72,7 @@ export const caseStudies: Array<CaseStudy> = [
     eyebrow: "Design Engineering",
     title: "Interfaces that feel polished, fast, and intentional",
     subtitle: "Interfaces that feel polished, fast, and intentional",
-    image: "/images/carousel-product-systems.svg",
+    image: "/images/portfolio-icons.png",
     prompt: "How do you approach design engineering work?",
     summary:
       "Placeholder copy for a design engineering case study. This can speak to visual systems, interaction quality, and how craft supports product strategy.",
@@ -86,7 +86,7 @@ export const caseStudies: Array<CaseStudy> = [
     eyebrow: "Launch Strategy",
     title: "Taking products from prototype to launch",
     subtitle: "Turning prototypes into products people can actually use",
-    image: "/images/carousel-shipping.svg",
+    image: "/images/portfolio-green.jpg",
     prompt: "How do you take products from prototype to launch?",
     summary:
       "Placeholder copy for a launch strategy case study. Explain how the work was scoped, validated, and turned into something ready for real users.",

@@ -88,18 +88,29 @@
         --chart-4: 39 87% 56%;
         --chart-5: 213 68% 54%;
         --radius: 12px;
+        --editorial-card: rgb(215, 208, 202);
+        --editorial-text: rgb(49, 45, 41);
+        --editorial-border: rgb(160, 138, 127);
+        --editorial-shadow: 0 24px 56px -32px rgba(0, 0, 0, 0.42);
+        --editorial-shell: #f7f1ea;
+        --editorial-input: #fffaf4;
+        --editorial-input-hover: #f1e6da;
+        --editorial-subtle-surface: rgb(226, 220, 215);
+        --editorial-placeholder: #8f7a67;
+        --editorial-overlay: rgba(33, 24, 18, 0.32);
+        --editorial-footer-text: rgba(255, 255, 255, 0.95);
     }
     .dark {
-        --color-brand-primary: #F0F0F0;
-        --color-brand-tint: #2E2E2E;
+        --color-brand-primary: #2D6B47;
+        --color-brand-tint: #173728;
         --background: 0 0% 7%;
         --foreground: 0 0% 94%;
         --card: 0 0% 10%;
         --card-foreground: 0 0% 94%;
         --popover: 0 0% 10%;
         --popover-foreground: 0 0% 94%;
-        --primary: 0 0% 94%;
-        --primary-foreground: 0 0% 7%;
+        --primary: 145 41% 30%;
+        --primary-foreground: 0 0% 100%;
         --secondary: 0 0% 14%;
         --secondary-foreground: 0 0% 82%;
         --muted: 0 0% 14%;
@@ -111,11 +122,23 @@
         --border: 0 0% 18%;
         --input: 0 0% 14%;
         --ring: 0 0% 56%;
-        --chart-1: 0 0% 24%;
-        --chart-2: 0 0% 36%;
-        --chart-3: 0 0% 53%;
-        --chart-4: 0 0% 69%;
-        --chart-5: 0 0% 94%;
+        --chart-1: 145 41% 30%;
+        --chart-2: 140 40% 49%;
+        --chart-3: 136 42% 86%;
+        --chart-4: 39 87% 56%;
+        --chart-5: 213 68% 54%;
+        --editorial-card: rgb(36, 34, 32);
+        --editorial-text: rgb(236, 228, 220);
+        --editorial-border: rgb(88, 79, 72);
+        --editorial-shadow: 0 28px 70px -34px rgba(0, 0, 0, 0.72);
+        --editorial-shell: #1c1a18;
+        --editorial-input: #282522;
+        --editorial-input-hover: #322e2a;
+        --editorial-subtle-surface: rgb(42, 39, 36);
+        --editorial-placeholder: #b5a79a;
+        --editorial-overlay: rgba(6, 6, 6, 0.56);
+        --editorial-footer-text: rgba(236, 228, 220, 0.92);
+        --page-background-image: none;
     }
 }
 
@@ -133,10 +156,14 @@
     body {
         @apply text-foreground;
         background-color: hsl(var(--background));
-        font-family: var(--font-body), sans-serif;
+        font-family: var(--font-display), serif;
         font-weight: 400;
         position: relative;
         isolation: isolate;
+    }
+
+    .dark html {
+        background-color: white;
     }
 
     body::before {
@@ -153,6 +180,12 @@
         animation: page-background-fade-in 1400ms cubic-bezier(0.22, 1, 0.36, 1) 900ms forwards;
     }
 
+    .dark body::before {
+        display: none;
+        background-image: none;
+        animation: none;
+    }
+
     body::after {
         content: "";
         position: fixed;
@@ -163,13 +196,18 @@
         pointer-events: none;
     }
 
+    .dark body::after {
+        background:
+            linear-gradient(180deg, rgba(5, 5, 5, 0.18) 0%, rgba(5, 5, 5, 0.08) 28%, rgba(5, 5, 5, 0.22) 100%);
+    }
+
     h1,
     h2,
     h3,
     h4,
     h5,
     h6 {
-        font-family: var(--font-heading), sans-serif;
+        font-family: var(--font-body), sans-serif;
         font-weight: 700;
         letter-spacing: -0.03em;
     }
@@ -182,7 +220,7 @@
     input,
     textarea,
     button {
-        font-family: var(--font-body), sans-serif;
+        font-family: var(--font-display), serif;
         font-weight: 400;
     }
 
@@ -197,6 +235,25 @@
 
     .font-display {
         font-family: var(--font-display), serif;
+    }
+
+    .editorial-sans {
+        font-family: var(--font-body), sans-serif !important;
+    }
+
+    .editorial-card {
+        background-color: var(--editorial-card);
+        border-color: var(--editorial-border);
+        box-shadow: var(--editorial-shadow);
+        color: var(--editorial-text);
+    }
+
+    .editorial-muted {
+        color: var(--editorial-text);
+    }
+
+    .editorial-subtle {
+        color: var(--editorial-text);
     }
 }
 

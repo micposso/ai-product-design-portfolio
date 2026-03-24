@@ -1,7 +1,7 @@
 # Shipping fast without looking rushed
 
-Category: Execution
-Published At: March 2026
+Category: Product Delivery
+Published At: March 2, 2026
 Read Time: 4 min read
 Prompt: How do you ship fast without making the product feel rushed?
 

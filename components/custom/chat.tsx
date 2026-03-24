@@ -2,6 +2,7 @@
 
 import { Attachment, Message } from "ai";
 import { useChat } from "ai/react";
+import { Boxes, BriefcaseBusiness, Mic, Route } from "lucide-react";
 import { useState } from "react";
 
 import { Message as PreviewMessage } from "@/components/custom/message";
@@ -18,21 +19,25 @@ const landingSuggestedActions = [
     title: "Map the systems",
     label: "behind the AI products you have shipped",
     action: "Map the systems behind the AI products you have shipped lately.",
+    icon: Boxes,
   },
   {
     title: "Walk me through",
     label: "a launch from prototype to release",
     action: "Walk me through a launch you took from prototype to release.",
+    icon: Route,
   },
   {
     title: "Show me",
     label: "how you approach design engineering",
     action: "Show me how you approach design engineering on product teams.",
+    icon: Mic,
   },
   {
     title: "Which projects",
     label: "best represent your recent work?",
     action: "Which projects best represent your recent work right now?",
+    icon: BriefcaseBusiness,
   },
 ];
 
@@ -43,6 +48,7 @@ export function Chat({
   id: string;
   initialMessages: Array<Message>;
 }) {
+  const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const {
     messages,
     handleSubmit,
@@ -65,6 +71,7 @@ export function Chat({
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const isEmptyState = messages.length === 0;
+  const isExpanded = isPromptExpanded || !isEmptyState;
 
   usePersistedChatState({
     storageKey: `portfolio-chat-home:${id}`,
@@ -77,33 +84,50 @@ export function Chat({
   return (
     <div className="px-4 pb-6 md:px-6 md:pb-8">
       <div className="mx-auto flex w-full max-w-screen-xl flex-col">
-        <Overview carousel={<ImageCarousel messages={messages} />}>
+        <Overview
+          carousel={<ImageCarousel messages={messages} />}
+          expanded={isExpanded}
+          panelTitle={
+            <div className="w-full border-l border-[color:var(--editorial-border)] pl-4 pb-2">
+              <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
+                Want to chat?
+              </p>
+              <p className="mt-1 text-base font-normal leading-7 text-[var(--editorial-text)]">
+                Explore the products, process, and decisions behind the work.
+              </p>
+            </div>
+          }
+        >
           <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-            {!isEmptyState ? (
+            <div
+              ref={messagesContainerRef}
+              className={`mb-4 flex flex-1 basis-0 flex-col items-center gap-4 overflow-y-auto overflow-x-hidden pr-1 transition-all duration-500 ease-out ${
+                isExpanded
+                  ? "min-h-[260px] opacity-100"
+                  : "min-h-0 max-h-0 opacity-0"
+              }`}
+            >
+              {!isEmptyState
+                ? messages.map((message) => (
+                    <PreviewMessage
+                      key={message.id}
+                      chatId={id}
+                      role={message.role}
+                      content={message.content}
+                      attachments={message.experimental_attachments}
+                      toolInvocations={message.toolInvocations}
+                      append={append}
+                    />
+                  ))
+                : null}
+
+              {isLoading ? <TypingIndicator /> : null}
+
               <div
-                ref={messagesContainerRef}
-                className="mb-4 flex min-h-0 flex-1 basis-0 flex-col items-center gap-4 overflow-y-auto overflow-x-hidden pr-1"
-              >
-                {messages.map((message) => (
-                  <PreviewMessage
-                    key={message.id}
-                    chatId={id}
-                    role={message.role}
-                    content={message.content}
-                    attachments={message.experimental_attachments}
-                    toolInvocations={message.toolInvocations}
-                    append={append}
-                  />
-                ))}
-
-                {isLoading ? <TypingIndicator /> : null}
-
-                <div
-                  ref={messagesEndRef}
-                  className="shrink-0 min-h-[24px] min-w-[24px]"
-                />
-              </div>
-            ) : null}
+                ref={messagesEndRef}
+                className="shrink-0 min-h-[24px] min-w-[24px]"
+              />
+            </div>
 
             <form className="relative flex w-full shrink-0 flex-row items-end gap-2">
               <MultimodalInput
@@ -118,15 +142,17 @@ export function Chat({
                 append={append}
                 textareaClassName={
                   isEmptyState
-                    ? "min-h-[180px] rounded-xl border border-white/60 bg-[#fffaf4] px-5 pb-14 pt-5 text-[15px] shadow-[0_26px_90px_-44px_rgba(34,25,19,0.18)] placeholder:text-[#8f7a67] focus-visible:ring-[#876b56]"
+                    ? "min-h-[104px] rounded-xl border border-[color:var(--editorial-border)] bg-[var(--editorial-input)] px-5 pb-14 pr-24 pt-4 text-[15px] leading-7 text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] placeholder:text-[var(--editorial-placeholder)] focus-visible:border-[color:var(--editorial-border)] focus-visible:ring-0 focus-visible:ring-offset-0"
                     : undefined
                 }
+                textareaRows={isEmptyState ? 2 : 3}
                 suggestedActionsClassName={
                   isEmptyState
-                    ? "rounded-lg border border-white/65 bg-[#f7f0e8] px-4 py-4 shadow-[0_18px_48px_-36px_rgba(34,25,19,0.18)] hover:bg-[#f1e6da]"
+                    ? "rounded-lg border border-[color:var(--editorial-border)] bg-[var(--editorial-input)] px-4 py-4 shadow-[var(--editorial-shadow)] hover:bg-[var(--editorial-input-hover)]"
                     : undefined
                 }
                 suggestedActions={landingSuggestedActions}
+                onSuggestedAction={() => setIsPromptExpanded(true)}
               />
             </form>
           </div>

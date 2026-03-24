@@ -1,7 +1,7 @@
 # Building AI products with clarity instead of hype
 
-Category: Product
-Published At: March 2026
+Category: AI Product Strategy
+Published At: January 18, 2026
 Read Time: 5 min read
 Prompt: What are your thoughts on building AI products with clarity instead of hype?
 

@@ -4,26 +4,20 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ReactNode } from "react";
 
+import { SidebarBrandCard } from "./sidebar-brand-card";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "../ui/button";
-
-const leftRailItems = [
-  {
-    label: "Current focus",
-    value: "AI products, launch systems, and design engineering",
-  },
-  {
-    label: "Best for",
-    value: "Founders, product teams, and operators shaping a next release",
-  },
-];
 
 export const Overview = ({
   children,
   carousel,
+  expanded = false,
+  panelTitle,
 }: {
   children: ReactNode;
   carousel?: ReactNode;
+  expanded?: boolean;
+  panelTitle?: ReactNode;
 }) => {
   return (
     <section className="w-full p-3 sm:p-6 lg:min-h-[calc(100svh-7rem)] lg:p-8">
@@ -35,34 +29,7 @@ export const Overview = ({
             transition={{ duration: 0.55, ease: "easeOut" }}
             className="flex flex-col justify-center gap-4"
           >
-            <div className="rounded-xl bg-[#1A3A22]/84 p-5 shadow-[0_24px_60px_-36px_rgba(20,16,12,0.35)] backdrop-blur">
-              <Link href="/" className="inline-flex flex-col items-start">
-                <span className="text-[clamp(2rem,3vw,3.25rem)] leading-[0.9] -tracking-wider text-white">
-                  Michael
-                </span>
-                <span className="text-[clamp(2rem,3vw,3.25rem)] leading-[0.9] -tracking-wider text-white">
-                  Posso.ai
-                </span>
-              </Link>
-
-              <div className="mt-5 space-y-4">
-                {leftRailItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className="border-l border-white/25 pl-4 text-sm text-white"
-                  >
-                    <p className="text-xs uppercase tracking-[0.18em] text-white/65">
-                      {item.label}
-                    </p>
-                    <p className="mt-1 leading-6 text-white">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="hidden rounded-xl border border-white/55 bg-white/55 px-5 py-3 text-center text-sm text-[#4b3d31] shadow-[0_16px_40px_-28px_rgba(20,16,12,0.3)] md:block">
-              Ask the portfolio like a live collaborator.
-            </div>
+            <SidebarBrandCard />
           </motion.div>
 
           <div className="flex min-h-0 flex-col gap-4">
@@ -77,36 +44,82 @@ export const Overview = ({
                   asChild
                   variant="outline"
                   size="sm"
-                  className="rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] hover:opacity-95 dark:border-transparent"
+                  className="editorial-sans rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] hover:opacity-95 dark:border-transparent"
                 >
-                  <Link href="/case-study/product-systems">Products</Link>
+                  <Link href="/">Home</Link>
                 </Button>
                 <Button
                   asChild
                   variant="outline"
                   size="sm"
-                  className="rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] hover:opacity-95 dark:border-transparent"
+                  className="editorial-card editorial-sans rounded-full px-4 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
+                >
+                  <Link href="/case-study">Products</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="editorial-card editorial-sans rounded-full px-4 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
                 >
                   <Link href="/insights">Insights</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="editorial-card editorial-sans rounded-full px-4 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
+                >
+                  <Link href="/education">Education</Link>
                 </Button>
               </div>
 
               <div className="ml-auto shrink-0">
                 <ThemeToggle />
               </div>
+
             </motion.div>
 
             <motion.div
+              layout
               initial={{ opacity: 0, y: 32 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, ease: "easeOut", delay: 0.08 }}
-              className="h-[460px] overflow-hidden rounded-2xl bg-[#f7f1ea] shadow-[0_40px_110px_-52px_rgba(28,23,19,0.5)] sm:h-[520px] lg:h-[620px]"
+              animate={{
+                opacity: 1,
+                y: 0,
+                maxHeight: expanded ? 1120 : 480,
+                minHeight: expanded ? 760 : 480,
+              }}
+              transition={{
+                opacity: { duration: 0.65, ease: "easeOut", delay: 0.08 },
+                y: { duration: 0.65, ease: "easeOut", delay: 0.08 },
+                maxHeight: {
+                  duration: 0.7,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+                minHeight: {
+                  duration: 0.7,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+                layout: {
+                  duration: 0.7,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+              }}
+              className="overflow-hidden rounded-2xl bg-[var(--editorial-shell)] shadow-[0_40px_110px_-52px_rgba(28,23,19,0.5)]"
             >
-              <div className="flex h-full flex-col p-2">
+              <div className="flex h-full flex-col gap-2 p-2">
+                {panelTitle ? (
+                  <div className="flex shrink-0 px-1 pt-1">{panelTitle}</div>
+                ) : null}
                 <motion.div
-                  animate={{ y: [0, -4, 0] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                  className="flex min-h-0 flex-1 w-full overflow-hidden rounded-xl bg-white/72 p-2 shadow-[0_26px_80px_-42px_rgba(23,18,13,0.18)] backdrop-blur-sm sm:p-3"
+                  layout
+                  animate={expanded ? { y: 0 } : { y: [0, -4, 0] }}
+                  transition={
+                    expanded
+                      ? { duration: 0.45, ease: [0.22, 1, 0.36, 1] }
+                      : { duration: 8, repeat: Infinity, ease: "easeInOut" }
+                  }
+                  className="flex min-h-0 flex-1 w-full overflow-hidden rounded-xl border border-[color:var(--editorial-border)] bg-[var(--editorial-subtle-surface)] p-2 text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] sm:p-3"
                 >
                   {children}
                 </motion.div>
@@ -116,14 +129,17 @@ export const Overview = ({
         </div>
 
         {carousel ? (
-          <div className="flex flex-col gap-4 p-2">
-            <motion.div
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-              className="flex min-h-0 w-full rounded-xl bg-white/72 p-3 shadow-[0_26px_80px_-42px_rgba(23,18,13,0.18)] backdrop-blur-sm sm:p-4"
-            >
-              <div className="w-full">{carousel}</div>
-            </motion.div>
+          <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
+            <div className="hidden lg:block" />
+            <div className="flex flex-col gap-4">
+              <motion.div
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                className="editorial-card flex min-h-0 w-full rounded-xl border p-3 sm:p-4"
+              >
+                <div className="w-full">{carousel}</div>
+              </motion.div>
+            </div>
           </div>
         ) : null}
       </div>

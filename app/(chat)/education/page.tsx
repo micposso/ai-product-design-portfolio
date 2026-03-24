@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { SidebarBrandCard } from "@/components/custom/sidebar-brand-card";
 import { ThemeToggle } from "@/components/custom/theme-toggle";
-import { insightPosts } from "@/lib/insights";
 
 export default function Page() {
   return (
@@ -15,7 +14,7 @@ export default function Page() {
 
           <div className="flex min-h-0 flex-col gap-4">
             <div className="flex w-full items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Link
                   href="/"
                   className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
@@ -28,15 +27,15 @@ export default function Page() {
                 >
                   Products
                 </Link>
-                <span className="editorial-sans inline-flex rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)]">
-                  Insights
-                </span>
                 <Link
-                  href="/education"
+                  href="/insights"
                   className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
                 >
-                  Education
+                  Insights
                 </Link>
+                <span className="editorial-sans inline-flex rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)]">
+                  Education
+                </span>
               </div>
               <div className="ml-auto shrink-0">
                 <ThemeToggle />
@@ -47,41 +46,30 @@ export default function Page() {
               <div className="flex flex-col gap-8 p-5 sm:p-6 lg:p-8">
                 <section className="max-w-3xl border-l border-[color:var(--editorial-border)] pl-4">
                   <p className="editorial-sans editorial-subtle text-xs font-semibold uppercase tracking-[0.18em]">
-                    Insights
+                    Education
                   </p>
                   <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--editorial-text)] md:text-6xl">
-                    Notes on product, AI, and design engineering.
+                    Learning materials and teaching content.
                   </h1>
                   <p className="editorial-muted mt-4 max-w-2xl text-base leading-8 md:text-lg">
-                    Working notes, launch thinking, and product decisions behind
-                    the shipped work.
+                    TBD. This section will house educational content, walkthroughs,
+                    and resources.
                   </p>
                 </section>
 
-                <section className="grid gap-4">
-                  {insightPosts.map((post) => (
-                    <div key={post.slug}>
-                      <Link
-                        href={`/insights/${post.slug}`}
-                        className="editorial-card block rounded-xl border p-5 transition hover:-translate-y-0.5 hover:brightness-110"
-                      >
-                        <div className="editorial-subtle mb-3 flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.16em]">
-                          <span className="editorial-sans font-semibold">
-                            {post.publishedAt}
-                          </span>
-                          <span className="editorial-sans font-semibold">
-                            {post.category}
-                          </span>
-                        </div>
-                        <h2 className="text-2xl font-bold text-[var(--editorial-text)]">
-                          {post.title}
-                        </h2>
-                        <p className="editorial-muted mt-3 max-w-3xl text-base leading-8">
-                          {post.excerpt}
-                        </p>
-                      </Link>
-                    </div>
-                  ))}
+                <section className="editorial-card rounded-xl border p-6 sm:p-8">
+                  <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
+                    Coming soon
+                  </p>
+                  <div className="mt-4 space-y-4 text-[var(--editorial-text)]">
+                    <p className="text-base leading-8">
+                      TBD
+                    </p>
+                    <p className="editorial-muted text-base leading-8">
+                      Placeholder page for courses, guides, workshops, and
+                      other educational material.
+                    </p>
+                  </div>
                 </section>
               </div>
             </div>

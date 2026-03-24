@@ -1,7 +1,7 @@
 # Designing for trust in AI interfaces
 
-Category: Design Engineering
-Published At: March 2026
+Category: AI Interface Design
+Published At: February 7, 2026
 Read Time: 6 min read
 Prompt: How do you think about trust when designing AI interfaces?
 

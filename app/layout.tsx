@@ -1,27 +1,28 @@
 import { Metadata } from "next";
-import { Domine, Lato, Space_Grotesk } from "next/font/google";
+import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import Script from "next/script";
 import { Toaster } from "sonner";
 
+import { Footer } from "@/components/custom/footer";
 import { Navbar } from "@/components/custom/navbar";
 import { ThemeProvider } from "@/components/custom/theme-provider";
 
 import "./globals.css";
 
-const lato = Lato({
+const sourceSans = Source_Sans_3({
   subsets: ["latin"],
-  weight: ["300", "400", "700", "900"],
+  weight: ["300", "400", "600", "700"],
   style: ["normal", "italic"],
   variable: "--font-body",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
-  weight: ["700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-heading",
 });
 
-const domine = Domine({
+const playfairDisplaySerif = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-display",
@@ -41,7 +42,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${lato.variable} ${spaceGrotesk.variable} ${domine.variable} antialiased`}
+        className={`${sourceSans.variable} ${playfairDisplay.variable} ${playfairDisplaySerif.variable} antialiased`}
       >
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-3WCMHMMGEW"
@@ -64,6 +65,7 @@ export default async function RootLayout({
           <Toaster position="top-center" />
           <Navbar />
           {children}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

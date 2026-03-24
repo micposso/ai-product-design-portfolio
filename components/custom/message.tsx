@@ -11,7 +11,7 @@ import {
   stripSourceMetadata,
 } from "@/lib/message-metadata";
 
-import { BotIcon, UserIcon } from "./icons";
+import { MessageIcon, PencilEditIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
 import { Weather } from "./weather";
 import { AuthorizePayment } from "../flights/authorize-payment";
@@ -71,12 +71,16 @@ export const Message = ({
       animate={{ y: 0, opacity: 1 }}
     >
       <div className="size-[24px] border rounded-sm p-1 flex flex-col justify-center items-center shrink-0 text-zinc-500">
-        {role === "assistant" ? <BotIcon /> : <UserIcon />}
+        {role === "assistant" ? (
+          <MessageIcon size={16} />
+        ) : (
+          <PencilEditIcon size={16} />
+        )}
       </div>
 
       <div className="flex flex-col gap-2 w-full">
         {normalizedContent && typeof normalizedContent === "string" && (
-          <div className="text-zinc-800 dark:text-zinc-300 flex flex-col gap-4">
+          <div className="flex flex-col gap-4 text-[0.95rem] leading-7 text-zinc-800 dark:text-zinc-300">
             <Streamdown>{normalizedContent}</Streamdown>
 
             {role === "assistant" && sourceTitles.length > 0 ? (

@@ -10,6 +10,8 @@ import React, {
   Dispatch,
   SetStateAction,
   ChangeEvent,
+  ComponentType,
+  SVGProps,
 } from "react";
 import { toast } from "sonner";
 
@@ -36,6 +38,7 @@ type SuggestedAction = {
   title: string;
   label: string;
   action: string;
+  icon?: ComponentType<SVGProps<SVGSVGElement>>;
 };
 
 export function MultimodalInput({
@@ -49,8 +52,10 @@ export function MultimodalInput({
   append,
   handleSubmit,
   textareaClassName,
+  textareaRows = 3,
   suggestedActionsClassName,
   suggestedActions = defaultSuggestedActions,
+  onSuggestedAction,
 }: {
   input: string;
   setInput: (value: string) => void;
@@ -70,8 +75,10 @@ export function MultimodalInput({
     chatRequestOptions?: ChatRequestOptions,
   ) => void;
   textareaClassName?: string;
+  textareaRows?: number;
   suggestedActionsClassName?: string;
   suggestedActions?: Array<SuggestedAction>;
+  onSuggestedAction?: () => void;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -180,18 +187,28 @@ export function MultimodalInput({
               >
                 <button
                   onClick={async () => {
+                    onSuggestedAction?.();
                     append({
                       role: "user",
                       content: suggestedAction.action,
                     });
                   }}
-                  className={`w-full rounded-lg border border-zinc-200 bg-muted/50 p-3 text-left text-sm text-zinc-800 transition-colors hover:bg-zinc-100 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 ${suggestedActionsClassName ?? ""}`}
+                  className={`w-full rounded-lg border border-[color:var(--editorial-border)] bg-[var(--editorial-card)] p-3 text-left text-sm text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] transition hover:brightness-110 ${suggestedActionsClassName ?? ""}`}
                 >
-                  <span className="font-medium text-inherit">
-                    {suggestedAction.title}
-                  </span>
-                  <span className="mt-1 text-zinc-500 dark:text-zinc-400">
-                    {suggestedAction.label}
+                  <span className="flex items-start gap-3">
+                    {suggestedAction.icon ? (
+                      <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-[color:var(--editorial-border)]">
+                        <suggestedAction.icon className="size-4" />
+                      </span>
+                    ) : null}
+                    <span className="flex flex-col items-start">
+                      <span className="editorial-sans text-xs font-semibold uppercase tracking-[0.16em] text-inherit">
+                        {suggestedAction.title}
+                      </span>
+                      <span className="mt-1 text-[var(--editorial-text)]">
+                        {suggestedAction.label}
+                      </span>
+                    </span>
                   </span>
                 </button>
               </motion.div>
@@ -234,7 +251,7 @@ export function MultimodalInput({
         value={input}
         onChange={handleInput}
         className={`min-h-[24px] overflow-hidden resize-none rounded-lg text-base bg-muted border-none ${textareaClassName ?? ""}`}
-        rows={3}
+        rows={textareaRows}
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -250,7 +267,7 @@ export function MultimodalInput({
 
       {isLoading ? (
         <Button
-          className="absolute bottom-3 right-3 m-0.5 h-fit rounded-full bg-[#1d3d33] p-1.5 text-white hover:bg-[#173128]"
+          className="absolute bottom-3 right-3 m-0.5 h-fit rounded-full bg-[var(--color-brand-primary)] p-1.5 text-white hover:brightness-110"
           onClick={(event) => {
             event.preventDefault();
             stop();
@@ -260,7 +277,7 @@ export function MultimodalInput({
         </Button>
       ) : (
         <Button
-          className="absolute bottom-3 right-3 m-0.5 h-fit rounded-full bg-[#1d3d33] p-1.5 text-white hover:bg-[#173128]"
+          className="absolute bottom-3 right-3 m-0.5 h-fit rounded-full bg-[var(--color-brand-primary)] p-1.5 text-white hover:brightness-110"
           onClick={(event) => {
             event.preventDefault();
             submitForm();
@@ -272,7 +289,7 @@ export function MultimodalInput({
       )}
 
       <Button
-        className="absolute bottom-3 right-11 m-0.5 h-fit rounded-full border-[#d2c3b6] bg-white/80 p-1.5 hover:bg-[#f4ebdf] dark:border-zinc-700"
+        className="absolute bottom-3 right-11 m-0.5 h-fit rounded-full border-[color:var(--editorial-border)] bg-[var(--editorial-card)] p-1.5 text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] hover:brightness-110"
         onClick={(event) => {
           event.preventDefault();
           fileInputRef.current?.click();
