@@ -44,8 +44,10 @@ export function SidebarBrandCard() {
 
       <div className="editorial-card min-w-0 w-full rounded-xl border p-5 [container-type:inline-size] sm:h-[238px] sm:min-w-[220px]">
         <Link href="/" className="flex w-full max-w-full items-start">
-          <span className="font-display block w-full max-w-full text-[clamp(1rem,20cqw,3.35rem)] font-normal leading-none tracking-[-0.06em] text-[var(--editorial-text)]">
-            <span className="whitespace-nowrap lg:hidden">MichaelPosso.ai</span>
+          <span className="font-display block w-full max-w-full text-[clamp(1.55rem,12vw,3.1rem)] font-normal leading-none tracking-[-0.06em] text-[var(--editorial-text)] sm:text-[clamp(1rem,20cqw,3.35rem)]">
+            <span className="block lg:hidden">
+              Michael<wbr />Posso.ai
+            </span>
             <span className="hidden w-full lg:block">Michael</span>
             <span className="hidden w-full lg:block">Posso.ai</span>
           </span>

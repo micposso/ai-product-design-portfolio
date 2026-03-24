@@ -137,7 +137,7 @@ export const Overview = ({
                 transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
                 className="editorial-card flex min-h-0 w-full rounded-xl border p-3 sm:p-4"
               >
-                <div className="w-full">{carousel}</div>
+                <div className="min-w-0 w-full overflow-hidden">{carousel}</div>
               </motion.div>
             </div>
           </div>
