@@ -38,7 +38,7 @@ export default async function Page({
                 <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                   <Link
                     href="/"
-                    className="editorial-sans inline-flex rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] transition hover:opacity-95"
+                    className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
                   >
                     Home
                   </Link>
@@ -50,7 +50,7 @@ export default async function Page({
                   </Link>
                   <Link
                     href="/insights"
-                    className="editorial-sans inline-flex rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] transition hover:opacity-95"
+                    className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
                   >
                     Insights
                   </Link>
