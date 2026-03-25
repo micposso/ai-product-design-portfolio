@@ -76,7 +76,7 @@ export default function Page() {
                         <h2 className="break-words text-2xl font-bold text-[var(--editorial-text)]">
                           {post.title}
                         </h2>
-                        <p className="editorial-muted mt-3 max-w-3xl text-base leading-8">
+                        <p className="insight-copy editorial-muted mt-3 max-w-3xl text-base leading-8">
                           {post.excerpt}
                         </p>
                       </Link>

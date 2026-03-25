@@ -90,7 +90,7 @@ export default async function Page({
                 </AnimatedCard>
 
                 <section className="max-w-4xl">
-                  <div className="editorial-muted space-y-8 text-[1.02rem] leading-8">
+                  <div className="insight-copy editorial-muted space-y-8 text-[1.02rem] leading-8">
                     {post.sections
                       .filter((section) => section.title !== "Excerpt")
                       .map((section, index) => (

@@ -102,7 +102,7 @@ export default function Page() {
                             <div className="absolute inset-0 bg-gradient-to-t from-[#1f1914]/22 via-transparent to-transparent" />
                           </div>
 
-                          <div className="min-w-0">
+                          <div className="case-study-card-copy min-w-0">
                             <div className="editorial-subtle flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.16em]">
                               <span className="editorial-sans font-semibold">
                                 {caseStudy.eyebrow}

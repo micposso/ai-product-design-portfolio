@@ -252,6 +252,30 @@
         font-family: var(--font-body), sans-serif !important;
     }
 
+    .case-study-card-copy,
+    .case-study-card-copy p,
+    .case-study-card-copy a,
+    .case-study-card-copy li,
+    .case-study-card-copy span,
+    .case-study-card-copy strong,
+    .case-study-card-copy em,
+    .case-study-card-copy h2,
+    .case-study-card-copy h3 {
+        font-family: var(--font-body), sans-serif !important;
+    }
+
+    .insight-copy,
+    .insight-copy p,
+    .insight-copy li {
+        font-family: var(--font-body), sans-serif !important;
+    }
+
+    .education-copy,
+    .education-copy p,
+    .education-copy li {
+        font-family: var(--font-body), sans-serif !important;
+    }
+
     .editorial-card {
         background-color: var(--editorial-card);
         border-color: var(--editorial-border);

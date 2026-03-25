@@ -61,7 +61,7 @@ export default function Page() {
                   <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
                     Coming soon
                   </p>
-                  <div className="mt-4 space-y-4 text-[var(--editorial-text)]">
+                  <div className="education-copy mt-4 space-y-4 text-[var(--editorial-text)]">
                     <p className="text-base leading-8">
                       TBD
                     </p>

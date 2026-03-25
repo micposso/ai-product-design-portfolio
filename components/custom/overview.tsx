@@ -27,7 +27,7 @@ export const Overview = ({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: "easeOut", delay: 0.02 }}
-          className="flex items-center gap-3"
+          className="flex items-center gap-3 lg:hidden"
         >
           <div className="min-w-0 flex-1 lg:ml-auto lg:max-w-xs">
             <SidebarAudioPlayer />
@@ -87,6 +87,10 @@ export const Overview = ({
                 >
                   <Link href="/education">Education</Link>
                 </Button>
+              </div>
+
+              <div className="hidden shrink-0 self-end sm:ml-auto sm:self-auto lg:block">
+                <ThemeToggle />
               </div>
 
             </motion.div>

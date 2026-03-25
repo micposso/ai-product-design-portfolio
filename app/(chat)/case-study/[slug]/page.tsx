@@ -106,7 +106,7 @@ export default async function Page({
 
                 <section className="grid gap-4 md:grid-cols-2">
                   <AnimatedCard delay={0.18}>
-                    <div className="editorial-card rounded-xl border p-5 sm:p-6">
+                    <div className="case-study-card-copy editorial-card rounded-xl border p-5 sm:p-6">
                       <div className="flex items-center gap-2">
                         <span className="inline-flex size-8 items-center justify-center rounded-full border border-[color:var(--editorial-border)]">
                           <CircleAlert className="size-4" />
@@ -122,7 +122,7 @@ export default async function Page({
                   </AnimatedCard>
 
                   <AnimatedCard delay={0.22}>
-                    <div className="editorial-card rounded-xl border p-5 sm:p-6">
+                    <div className="case-study-card-copy editorial-card rounded-xl border p-5 sm:p-6">
                       <div className="flex items-center gap-2">
                         <span className="inline-flex size-8 items-center justify-center rounded-full border border-[color:var(--editorial-border)]">
                           <Sparkles className="size-4" />
@@ -144,7 +144,7 @@ export default async function Page({
                       key={label}
                       delay={0.26 + index * 0.05}
                     >
-                      <div className="editorial-card rounded-xl border p-5 sm:p-6">
+                      <div className="case-study-card-copy editorial-card rounded-xl border p-5 sm:p-6">
                         <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
                           0{index + 1}
                         </p>
@@ -162,7 +162,7 @@ export default async function Page({
                 </section>
 
                 <AnimatedCard delay={0.42}>
-                  <section className="editorial-card rounded-xl border p-6 sm:p-8">
+                  <section className="case-study-card-copy editorial-card rounded-xl border p-6 sm:p-8">
                     <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
                       Notes
                     </p>
