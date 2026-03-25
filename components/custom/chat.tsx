@@ -2,7 +2,7 @@
 
 import { Attachment, Message } from "ai";
 import { useChat } from "ai/react";
-import { Boxes, BriefcaseBusiness, Mic, Route } from "lucide-react";
+import { Boxes, BriefcaseBusiness, Eye, Route } from "lucide-react";
 import { useState } from "react";
 
 import { Message as PreviewMessage } from "@/components/custom/message";
@@ -31,7 +31,7 @@ const landingSuggestedActions = [
     title: "Show me",
     label: "how you approach design engineering",
     action: "Show me how you approach design engineering on product teams.",
-    icon: Mic,
+    icon: Eye,
   },
   {
     title: "Which projects",
@@ -98,12 +98,12 @@ export function Chat({
             </div>
           }
         >
-          <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="flex min-h-0 w-full flex-col overflow-hidden">
             <div
               ref={messagesContainerRef}
               className={`mb-4 flex flex-1 basis-0 flex-col items-center gap-4 overflow-y-auto overflow-x-hidden pr-1 transition-all duration-500 ease-out ${
                 isExpanded
-                  ? "min-h-[260px] opacity-100"
+                  ? "min-h-[220px] sm:min-h-[260px] opacity-100"
                   : "min-h-0 max-h-0 opacity-0"
               }`}
             >

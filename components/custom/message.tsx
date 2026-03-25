@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ReactNode } from "react";
 import { Streamdown } from "streamdown";
 
-import { extractFollowUpQuestion } from "@/lib/follow-ups";
+import { extractFollowUpQuestion, getFollowUpAction } from "@/lib/follow-ups";
 import {
   extractSourceTitles,
   stripSourceMetadata,
@@ -59,6 +59,17 @@ export const Message = ({
     role === "assistant" && typeof normalizedContent === "string"
       ? extractFollowUpQuestion(normalizedContent)
       : undefined;
+  const displayContent =
+    followUpQuestion && typeof normalizedContent === "string"
+      ? normalizedContent
+          .slice(0, -followUpQuestion.length)
+          .trimEnd()
+      : normalizedContent;
+  const displayContentString =
+    typeof displayContent === "string" ? displayContent : undefined;
+  const followUpAction = followUpQuestion
+    ? getFollowUpAction(followUpQuestion)
+    : undefined;
   const shouldShowRefusalRecovery =
     role === "assistant" &&
     typeof normalizedContent === "string" &&
@@ -79,16 +90,16 @@ export const Message = ({
       </div>
 
       <div className="flex flex-col gap-2 w-full">
-        {normalizedContent && typeof normalizedContent === "string" && (
+        {displayContentString && (
           <div className="flex flex-col gap-4 text-[0.95rem] leading-7 text-zinc-800 dark:text-zinc-300">
-            <Streamdown>{normalizedContent}</Streamdown>
+            <Streamdown>{displayContentString}</Streamdown>
 
             {role === "assistant" && sourceTitles.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {sourceTitles.map((title) => (
                   <span
                     key={title}
-                    className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                    className="editorial-sans rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
                   >
                     Based on: {title}
                   </span>
@@ -106,26 +117,26 @@ export const Message = ({
                       content: REFUSAL_RECOVERY_PROMPT,
                     })
                   }
-                  className="rounded-full border border-zinc-200 px-3 py-1.5 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-800 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
+                  className="editorial-sans rounded-full border-transparent bg-[var(--color-brand-primary)] px-3 py-1.5 text-sm font-semibold text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] transition hover:opacity-95"
                 >
                   {REFUSAL_RECOVERY_PROMPT}
                 </button>
               </div>
             ) : null}
 
-            {followUpQuestion && append ? (
+            {followUpAction && append ? (
               <div>
                 <button
                   type="button"
                   onClick={() =>
                     append({
                       role: "user",
-                      content: followUpQuestion,
+                      content: followUpAction,
                     })
                   }
-                  className="rounded-full border border-zinc-200 px-3 py-1.5 text-sm text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-800 dark:text-zinc-200 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
+                  className="editorial-sans rounded-full border-transparent bg-[var(--color-brand-primary)] px-3 py-1.5 text-sm font-semibold text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] transition hover:opacity-95"
                 >
-                  {followUpQuestion}
+                  {followUpAction}
                 </button>
               </div>
             ) : null}

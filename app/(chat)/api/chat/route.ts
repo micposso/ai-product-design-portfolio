@@ -15,6 +15,7 @@ import {
 import { withSpan } from "@/lib/telemetry";
 
 const MAX_MESSAGES_PER_REQUEST = 20;
+const MAX_CONTEXT_MESSAGES = 8;
 const MAX_PROMPT_CHARACTERS = 1500;
 const TEN_MINUTES_IN_MS = 10 * 60 * 1000;
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -30,6 +31,11 @@ type RateLimitEntry = {
 };
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
+
+const answerModel =
+  process.env.PORTFOLIO_CHAT_MODEL === "pro"
+    ? geminiProModel
+    : geminiFlashModel;
 
 function resolveFollowUpIntent(messages: Array<Message>, latestUserMessage: Message) {
   if (
@@ -237,9 +243,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const coreMessages = convertToCoreMessages(messages).filter(
-      (message) => message.content.length > 0,
-    );
+    const coreMessages = convertToCoreMessages(messages)
+      .filter((message) => message.content.length > 0)
+      .slice(-MAX_CONTEXT_MESSAGES);
 
     const effectiveQuery = await withSpan(
       "chat.query.resolve",
@@ -433,7 +439,7 @@ Write one short, calm refusal that:
       },
       async () =>
         streamText({
-          model: geminiProModel,
+          model: answerModel,
           system: `You are answering as Michael Posso in first person.
 
 You may answer only using the provided context about:

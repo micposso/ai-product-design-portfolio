@@ -29,27 +29,25 @@ export function SidebarBrandCard() {
 
   return (
     <>
-      <div className="flex justify-center">
-        <div className="relative size-28 overflow-hidden rounded-full border border-[color:var(--editorial-border)] bg-[var(--editorial-shell)] shadow-[0_26px_70px_-38px_rgba(28,23,19,0.35)]">
-          <Image
-            src="/images/profile.jpg"
-            alt="Michael Posso"
-            fill
-            sizes="112px"
-            className="object-cover"
-            priority
-          />
-        </div>
-      </div>
-
       <div className="editorial-card min-w-0 w-full rounded-xl border p-5 [container-type:inline-size] sm:h-[238px] sm:min-w-[220px]">
-        <Link href="/" className="flex w-full max-w-full items-start">
-          <span className="font-display block w-full max-w-full text-[clamp(1.55rem,12vw,3.1rem)] font-normal leading-none tracking-[-0.06em] text-[var(--editorial-text)] sm:text-[clamp(1rem,20cqw,3.35rem)]">
-            <span className="block lg:hidden">
+        <Link
+          href="/"
+          className="flex w-full max-w-full items-center justify-between gap-4"
+        >
+          <span className="font-display block min-w-0 flex-1 text-[clamp(1.55rem,12vw,3.1rem)] font-normal leading-none tracking-[-0.06em] text-[var(--editorial-text)] sm:text-[clamp(1rem,17cqw,3.1rem)]">
+            <span className="block">
               Michael<wbr />Posso.ai
             </span>
-            <span className="hidden w-full lg:block">Michael</span>
-            <span className="hidden w-full lg:block">Posso.ai</span>
+          </span>
+          <span className="relative aspect-square w-[clamp(4.5rem,24cqw,6rem)] shrink-0 self-center overflow-hidden rounded-full border border-[color:var(--editorial-border)] bg-[var(--editorial-shell)] shadow-[0_26px_70px_-38px_rgba(28,23,19,0.35)]">
+            <Image
+              src="/images/profile.jpg"
+              alt="Michael Posso"
+              fill
+              sizes="(max-width: 639px) 72px, (max-width: 1023px) 88px, 96px"
+              className="object-cover object-center"
+              priority
+            />
           </span>
         </Link>
 

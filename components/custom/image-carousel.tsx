@@ -80,7 +80,7 @@ export function ImageCarousel({
   }, []);
 
   return (
-    <div className="flex min-w-0 w-full flex-col gap-4 overflow-hidden">
+    <div className="relative flex min-w-0 w-full flex-col gap-4 overflow-visible">
       <div className="flex items-center justify-between px-1">
         <div className="w-full border-l border-[color:var(--editorial-border)] pl-4">
           <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
@@ -92,12 +92,12 @@ export function ImageCarousel({
         </div>
       </div>
 
-      <div className="flex items-center gap-3 md:gap-4">
+      <div className="relative flex items-center">
         <Button
           type="button"
           variant="outline"
           size="icon"
-          className="editorial-card hidden shrink-0 rounded-full border md:flex"
+          className="absolute -left-6 top-1/2 z-10 hidden shrink-0 -translate-y-1/2 rounded-full border-transparent bg-[var(--color-brand-primary)] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] hover:brightness-110 md:flex"
           onClick={() => scrollByAmount("left")}
           aria-label="Scroll carousel left"
         >
@@ -140,7 +140,7 @@ export function ImageCarousel({
           type="button"
           variant="outline"
           size="icon"
-          className="editorial-card hidden shrink-0 rounded-full border md:flex"
+          className="absolute -right-6 top-1/2 z-10 hidden shrink-0 -translate-y-1/2 rounded-full border-transparent bg-[var(--color-brand-primary)] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] hover:brightness-110 md:flex"
           onClick={() => scrollByAmount("right")}
           aria-label="Scroll carousel right"
         >

@@ -124,7 +124,7 @@ export function SidebarAudioPlayer() {
           onClick={togglePlayback}
           disabled={hasError}
           aria-label={isPlaying ? "Stop audio" : "Play audio"}
-          className="size-10 rounded-full border-[color:var(--editorial-border)] bg-[var(--editorial-card)] text-[var(--editorial-text)] hover:brightness-110"
+          className="size-10 rounded-full border-transparent bg-[var(--color-brand-primary)] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] hover:brightness-110"
         >
           {isPlaying ? <Square className="size-4 fill-current" /> : <Play className="ml-0.5 size-4 fill-current" />}
         </Button>
@@ -153,7 +153,10 @@ export function SidebarAudioPlayer() {
           onChange={(event) => handleSeek(Number(event.target.value))}
           disabled={!isReady || hasError}
           aria-label="Audio timeline"
-          className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[color:var(--editorial-border)]/45 accent-[var(--color-brand-primary)] disabled:cursor-not-allowed"
+          style={{
+            background: `linear-gradient(90deg, #b9e6c7 0%, #b9e6c7 ${progressValue}%, rgba(160, 138, 127, 0.28) ${progressValue}%, rgba(160, 138, 127, 0.28) 100%)`,
+          }}
+          className="h-2 w-full cursor-pointer appearance-none rounded-full border border-[color:var(--editorial-border)]/25 accent-[#b9e6c7] disabled:cursor-not-allowed"
         />
         <div className="mt-2 flex items-center justify-between text-xs text-[var(--editorial-text)]/72">
           <span className="editorial-sans">{formatTime(currentTime)}</span>

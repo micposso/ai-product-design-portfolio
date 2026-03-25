@@ -86,20 +86,10 @@ export const Overview = ({
               animate={{
                 opacity: 1,
                 y: 0,
-                maxHeight: expanded ? 1120 : 480,
-                minHeight: expanded ? 760 : 480,
               }}
               transition={{
                 opacity: { duration: 0.65, ease: "easeOut", delay: 0.08 },
                 y: { duration: 0.65, ease: "easeOut", delay: 0.08 },
-                maxHeight: {
-                  duration: 0.7,
-                  ease: [0.22, 1, 0.36, 1],
-                },
-                minHeight: {
-                  duration: 0.7,
-                  ease: [0.22, 1, 0.36, 1],
-                },
                 layout: {
                   duration: 0.7,
                   ease: [0.22, 1, 0.36, 1],
@@ -113,12 +103,8 @@ export const Overview = ({
                 ) : null}
                 <motion.div
                   layout
-                  animate={expanded ? { y: 0 } : { y: [0, -4, 0] }}
-                  transition={
-                    expanded
-                      ? { duration: 0.45, ease: [0.22, 1, 0.36, 1] }
-                      : { duration: 8, repeat: Infinity, ease: "easeInOut" }
-                  }
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   className="flex min-h-0 flex-1 w-full overflow-hidden rounded-xl border border-[color:var(--editorial-border)] bg-[var(--editorial-subtle-surface)] p-2 text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] sm:p-3"
                 >
                   {children}
@@ -133,11 +119,11 @@ export const Overview = ({
             <div className="hidden lg:block" />
             <div className="flex flex-col gap-4">
               <motion.div
-                animate={{ y: [0, -4, 0] }}
-                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                className="editorial-card flex min-h-0 w-full rounded-xl border p-3 sm:p-4"
+                animate={{ y: 0 }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                className="editorial-card flex min-h-0 w-full rounded-xl border p-2.5 sm:p-3"
               >
-                <div className="min-w-0 w-full overflow-hidden">{carousel}</div>
+                <div className="min-w-0 w-full overflow-visible">{carousel}</div>
               </motion.div>
             </div>
           </div>
