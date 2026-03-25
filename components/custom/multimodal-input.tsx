@@ -1,7 +1,8 @@
 "use client";
 
 import { Attachment, ChatRequestOptions, CreateMessage, Message } from "ai";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { Copy, Mail } from "lucide-react";
 import React, {
   useRef,
   useEffect,
@@ -9,16 +10,15 @@ import React, {
   useCallback,
   Dispatch,
   SetStateAction,
-  ChangeEvent,
   ComponentType,
   SVGProps,
 } from "react";
 import { toast } from "sonner";
 
-import { ArrowUpIcon, PaperclipIcon, StopIcon } from "./icons";
-import { PreviewAttachment } from "./preview-attachment";
+import { ArrowUpIcon, StopIcon } from "./icons";
 import useWindowSize from "./use-window-size";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 
 const defaultSuggestedActions = [
@@ -101,8 +101,10 @@ export function MultimodalInput({
     adjustHeight();
   };
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
+  const [isEmailComposerOpen, setIsEmailComposerOpen] = useState(false);
+  const [emailAddress, setEmailAddress] = useState("");
+  const [emailHoneypot, setEmailHoneypot] = useState("");
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const submitForm = useCallback(() => {
     handleSubmit(undefined, {
@@ -116,65 +118,163 @@ export function MultimodalInput({
     }
   }, [attachments, handleSubmit, setAttachments, width]);
 
-  const uploadFile = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
+  const sendConversationEmail = useCallback(async () => {
+    if (messages.length === 0) {
+      toast.error("Start a conversation before emailing it.");
+      return;
+    }
+
+    if (!emailAddress.trim()) {
+      toast.error("Enter an email address.");
+      return;
+    }
+
+    setIsSendingEmail(true);
 
     try {
-      const response = await fetch(`/api/files/upload`, {
+      const response = await fetch("/api/conversation-email", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: emailAddress.trim(),
+          company: emailHoneypot,
+          messages,
+        }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const { url, pathname, contentType } = data;
+      const data = await response.json();
 
-        return {
-          url,
-          name: pathname,
-          contentType: contentType,
-        };
-      } else {
-        const { error } = await response.json();
-        toast.error(error);
+      if (!response.ok) {
+        toast.error(data.error ?? "Unable to email this conversation right now.");
+        return;
       }
-    } catch (error) {
-      toast.error("Failed to upload file, please try again!");
+
+      toast.success(`Conversation sent to ${emailAddress.trim()}.`);
+      setIsEmailComposerOpen(false);
+      setEmailAddress("");
+      setEmailHoneypot("");
+    } catch {
+      toast.error("Unable to email this conversation right now.");
+    } finally {
+      setIsSendingEmail(false);
     }
-  };
+  }, [emailAddress, emailHoneypot, messages]);
 
-  const handleFileChange = useCallback(
-    async (event: ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(event.target.files || []);
+  const copyConversationToClipboard = useCallback(async () => {
+    if (messages.length === 0) {
+      toast.error("Start a conversation before copying it.");
+      return;
+    }
 
-      setUploadQueue(files.map((file) => file.name));
+    const transcript = messages
+      .map((message) => {
+        if (typeof message.content !== "string") {
+          return null;
+        }
 
-      try {
-        const uploadPromises = files.map((file) => uploadFile(file));
-        const uploadedAttachments = await Promise.all(uploadPromises);
-        const successfullyUploadedAttachments = uploadedAttachments.filter(
-          (attachment) => attachment !== undefined,
-        );
+        const content = message.content.trim();
 
-        setAttachments((currentAttachments) => [
-          ...currentAttachments,
-          ...successfullyUploadedAttachments,
-        ]);
-      } catch (error) {
-        console.error("Error uploading files!", error);
-      } finally {
-        setUploadQueue([]);
-      }
-    },
-    [setAttachments],
-  );
+        if (!content) {
+          return null;
+        }
+
+        return `${message.role === "assistant" ? "MichaelPosso.ai" : "You"}\n${content}`;
+      })
+      .filter(Boolean)
+      .join("\n\n");
+
+    if (!transcript) {
+      toast.error("There is no conversation text to copy yet.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(transcript);
+      toast.success("Conversation copied to clipboard.");
+    } catch {
+      toast.error("Unable to copy the conversation right now.");
+    }
+  }, [messages]);
 
   return (
     <div className="relative w-full flex flex-col gap-4">
+      <AnimatePresence initial={false}>
+        {isEmailComposerOpen ? (
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.24, ease: "easeOut" }}
+            className="editorial-card flex flex-col gap-3 rounded-xl border p-3 shadow-[var(--editorial-shadow)]"
+          >
+            <div>
+              <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
+                Email this conversation
+              </p>
+              <p className="mt-1 text-sm text-[var(--editorial-text)]">
+                We&apos;ll send a copy with the subject line
+                {" "}
+                <span className="editorial-sans font-semibold">
+                  Conversation with michaelposso.ai
+                </span>
+                .
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute left-[-9999px] top-auto size-px overflow-hidden opacity-0"
+              >
+                <label htmlFor="conversation-company">Company</label>
+                <input
+                  id="conversation-company"
+                  name="company"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={emailHoneypot}
+                  onChange={(event) => setEmailHoneypot(event.target.value)}
+                />
+              </div>
+
+              <Input
+                type="email"
+                value={emailAddress}
+                onChange={(event) => setEmailAddress(event.target.value)}
+                placeholder="you@example.com"
+                className="h-11 rounded-lg border-[color:var(--editorial-border)] bg-[var(--editorial-input)] text-[var(--editorial-text)] placeholder:text-[var(--editorial-placeholder)] focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
+              <Button
+                type="button"
+                onClick={sendConversationEmail}
+                disabled={isSendingEmail}
+                className="editorial-sans h-11 rounded-lg bg-[var(--color-brand-primary)] px-4 text-xs font-semibold uppercase tracking-[0.16em] text-white hover:brightness-110"
+              >
+                {isSendingEmail ? "Sending..." : "Send Email"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsEmailComposerOpen(false);
+                  setEmailHoneypot("");
+                }}
+                disabled={isSendingEmail}
+                className="editorial-sans h-11 rounded-lg border-[color:var(--editorial-border)] bg-[var(--editorial-card)] px-4 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--editorial-text)] hover:brightness-110"
+              >
+                Cancel
+              </Button>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       {messages.length === 0 &&
         attachments.length === 0 &&
-        uploadQueue.length === 0 && (
+        (
           <div className="grid w-full gap-3 md:px-0 md:max-w-none sm:grid-cols-2">
             {suggestedActions.map((suggestedAction, index) => (
               <motion.div
@@ -216,35 +316,6 @@ export function MultimodalInput({
           </div>
         )}
 
-      <input
-        type="file"
-        className="fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none"
-        ref={fileInputRef}
-        multiple
-        onChange={handleFileChange}
-        tabIndex={-1}
-      />
-
-      {(attachments.length > 0 || uploadQueue.length > 0) && (
-        <div className="flex flex-row gap-2 overflow-x-scroll">
-          {attachments.map((attachment) => (
-            <PreviewAttachment key={attachment.url} attachment={attachment} />
-          ))}
-
-          {uploadQueue.map((filename) => (
-            <PreviewAttachment
-              key={filename}
-              attachment={{
-                url: "",
-                name: filename,
-                contentType: "",
-              }}
-              isUploading={true}
-            />
-          ))}
-        </div>
-      )}
-
       <Textarea
         ref={textareaRef}
         placeholder="Ask about launches, systems, or the thinking behind the work..."
@@ -282,23 +353,43 @@ export function MultimodalInput({
             event.preventDefault();
             submitForm();
           }}
-          disabled={input.length === 0 || uploadQueue.length > 0}
+          disabled={input.length === 0}
         >
           <ArrowUpIcon size={14} />
         </Button>
       )}
 
-      <Button
-        className="absolute bottom-3 right-11 m-0.5 h-fit rounded-full border-[color:var(--editorial-border)] bg-[var(--editorial-card)] p-1.5 text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] hover:brightness-110"
-        onClick={(event) => {
-          event.preventDefault();
-          fileInputRef.current?.click();
-        }}
-        variant="outline"
-        disabled={isLoading}
-      >
-        <PaperclipIcon size={14} />
-      </Button>
+      {messages.length > 0 ? (
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            className="absolute bottom-3 right-11 m-0.5 h-fit rounded-full border-[color:var(--editorial-border)] bg-[var(--editorial-card)] p-1.5 text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] hover:brightness-110"
+            onClick={(event) => {
+              event.preventDefault();
+              copyConversationToClipboard();
+            }}
+            disabled={isLoading}
+            aria-label="Copy this conversation"
+          >
+            <Copy size={14} />
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="absolute bottom-3 right-[76px] m-0.5 h-fit rounded-full border-[color:var(--editorial-border)] bg-[var(--editorial-card)] p-1.5 text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] hover:brightness-110"
+            onClick={(event) => {
+              event.preventDefault();
+              setIsEmailComposerOpen((current) => !current);
+            }}
+            disabled={isLoading}
+            aria-label="Email this conversation"
+          >
+            <Mail size={14} />
+          </Button>
+        </>
+      ) : null}
     </div>
   );
 }
