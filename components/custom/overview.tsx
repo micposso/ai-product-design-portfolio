@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ReactNode } from "react";
 
+import { SidebarAudioPlayer } from "./sidebar-audio-player";
 import { SidebarBrandCard } from "./sidebar-brand-card";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "../ui/button";
@@ -22,6 +23,20 @@ export const Overview = ({
   return (
     <section className="w-full p-3 sm:p-6 lg:min-h-[calc(100svh-7rem)] lg:p-8">
       <div className="flex flex-col gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: "easeOut", delay: 0.02 }}
+          className="flex items-center gap-3"
+        >
+          <div className="min-w-0 flex-1 lg:ml-auto lg:max-w-xs">
+            <SidebarAudioPlayer />
+          </div>
+          <div className="shrink-0">
+            <ThemeToggle />
+          </div>
+        </motion.div>
+
         <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
           <motion.div
             initial={{ opacity: 0, x: -24 }}
@@ -72,10 +87,6 @@ export const Overview = ({
                 >
                   <Link href="/education">Education</Link>
                 </Button>
-              </div>
-
-              <div className="self-end sm:ml-auto sm:self-auto shrink-0">
-                <ThemeToggle />
               </div>
 
             </motion.div>

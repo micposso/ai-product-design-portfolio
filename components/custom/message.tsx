@@ -91,8 +91,10 @@ export const Message = ({
 
       <div className="flex flex-col gap-2 w-full">
         {displayContentString && (
-          <div className="flex flex-col gap-4 text-[0.95rem] leading-7 text-zinc-800 dark:text-zinc-300">
-            <Streamdown>{displayContentString}</Streamdown>
+          <div className="editorial-sans flex flex-col gap-4 text-[0.95rem] leading-7 text-zinc-800 dark:text-zinc-300">
+            <div className="chat-copy editorial-sans">
+              <Streamdown>{displayContentString}</Streamdown>
+            </div>
 
             {role === "assistant" && sourceTitles.length > 0 ? (
               <div className="flex flex-wrap gap-2">

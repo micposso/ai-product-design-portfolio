@@ -241,6 +241,17 @@
         font-family: var(--font-body), sans-serif !important;
     }
 
+    .chat-copy,
+    .chat-copy p,
+    .chat-copy a,
+    .chat-copy li,
+    .chat-copy span,
+    .chat-copy strong,
+    .chat-copy em,
+    .chat-copy blockquote {
+        font-family: var(--font-body), sans-serif !important;
+    }
+
     .editorial-card {
         background-color: var(--editorial-card);
         border-color: var(--editorial-border);
