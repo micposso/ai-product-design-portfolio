@@ -1,12 +1,11 @@
 import { CircleAlert, Sparkles } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AnimatedCard } from "@/components/custom/animated-card";
 import { CaseStudyChat } from "@/components/custom/case-study-chat";
-import { SidebarBrandCard } from "@/components/custom/sidebar-brand-card";
-import { ThemeToggle } from "@/components/custom/theme-toggle";
+import { PageTopNav } from "@/components/custom/page-top-nav";
+import { SidebarRail } from "@/components/custom/sidebar-rail";
 import { getCaseStudyBySlug } from "@/lib/case-studies";
 import { generateUUID } from "@/lib/utils";
 
@@ -28,44 +27,10 @@ export default async function Page({
     <div className="px-4 pb-36 md:px-6 md:pb-40">
       <article className="mx-auto flex w-full max-w-screen-xl flex-col p-4 sm:p-6 lg:min-h-[calc(100svh-7rem)] lg:p-8">
         <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-          <div className="flex flex-col justify-center gap-4">
-            <SidebarBrandCard />
-          </div>
+          <SidebarRail />
 
           <div className="flex min-h-0 min-w-0 flex-col gap-4">
-            <div className="flex flex-col gap-3">
-              <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-                  <Link
-                    href="/"
-                    className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                  >
-                    Home
-                  </Link>
-                  <Link
-                    href="/case-study"
-                    className="editorial-sans inline-flex rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] transition hover:opacity-95"
-                  >
-                    Products
-                  </Link>
-                  <Link
-                    href="/insights"
-                    className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                  >
-                    Insights
-                  </Link>
-                  <Link
-                    href="/education"
-                    className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                  >
-                    Education
-                  </Link>
-                </div>
-                <div className="self-end sm:ml-auto sm:self-auto shrink-0">
-                  <ThemeToggle />
-                </div>
-              </div>
-            </div>
+            <PageTopNav active="products" />
 
             <AnimatedCard
               delay={0.08}
@@ -85,6 +50,18 @@ export default async function Page({
                         <p className="mt-4 text-[0.95rem] leading-7 text-[var(--editorial-text)]">
                           {caseStudy.summary}
                         </p>
+                        {caseStudy.tags.length > 0 ? (
+                          <div className="mt-5 flex flex-wrap gap-2">
+                            {caseStudy.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="editorial-sans inline-flex rounded-full border-transparent bg-[var(--color-brand-primary)] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)]"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
 
                       <div className="relative overflow-hidden rounded-2xl border border-[color:var(--editorial-border)] shadow-[var(--editorial-shadow)]">
@@ -105,33 +82,33 @@ export default async function Page({
                 </AnimatedCard>
 
                 <section className="grid gap-4 md:grid-cols-2">
-                  <AnimatedCard delay={0.18}>
-                    <div className="case-study-card-copy editorial-card rounded-xl border p-5 sm:p-6">
+                  <AnimatedCard delay={0.18} className="h-full">
+                    <div className="case-study-card-copy editorial-card flex h-full flex-col rounded-xl border p-5 sm:p-6">
                       <div className="flex items-center gap-2">
                         <span className="inline-flex size-8 items-center justify-center rounded-full border border-[color:var(--editorial-border)]">
                           <CircleAlert className="size-4" />
                         </span>
-                        <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
-                          Challenge
-                        </p>
                       </div>
-                      <p className="mt-4 text-[0.95rem] leading-7 text-[var(--editorial-text)]">
+                      <h2 className="mt-4 break-words text-2xl font-bold text-[var(--editorial-text)]">
+                        Challenge
+                      </h2>
+                      <p className="mt-3 text-[0.92rem] leading-7 text-[var(--editorial-text)]">
                         {caseStudy.challenge}
                       </p>
                     </div>
                   </AnimatedCard>
 
-                  <AnimatedCard delay={0.22}>
-                    <div className="case-study-card-copy editorial-card rounded-xl border p-5 sm:p-6">
+                  <AnimatedCard delay={0.22} className="h-full">
+                    <div className="case-study-card-copy editorial-card flex h-full flex-col rounded-xl border p-5 sm:p-6">
                       <div className="flex items-center gap-2">
                         <span className="inline-flex size-8 items-center justify-center rounded-full border border-[color:var(--editorial-border)]">
                           <Sparkles className="size-4" />
                         </span>
-                        <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
-                          Outcome
-                        </p>
                       </div>
-                      <p className="mt-4 text-[0.95rem] leading-7 text-[var(--editorial-text)]">
+                      <h2 className="mt-4 break-words text-2xl font-bold text-[var(--editorial-text)]">
+                        Outcome
+                      </h2>
+                      <p className="mt-3 text-[0.92rem] leading-7 text-[var(--editorial-text)]">
                         {caseStudy.outcome}
                       </p>
                     </div>
@@ -139,22 +116,21 @@ export default async function Page({
                 </section>
 
                 <section className="grid gap-4 md:grid-cols-3">
-                  {["Discovery", "Build", "Launch"].map((label, index) => (
+                  {caseStudy.stages.map((stage, index) => (
                     <AnimatedCard
-                      key={label}
+                      key={stage.title}
                       delay={0.26 + index * 0.05}
+                      className="h-full"
                     >
-                      <div className="case-study-card-copy editorial-card rounded-xl border p-5 sm:p-6">
+                      <div className="case-study-card-copy editorial-card flex h-full flex-col rounded-xl border p-5 sm:p-6">
                         <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
-                          0{index + 1}
+                          {stage.label}
                         </p>
                         <h2 className="mt-3 break-words text-2xl font-bold text-[var(--editorial-text)]">
-                          {label}
+                          {stage.title}
                         </h2>
                         <p className="mt-3 text-[0.92rem] leading-7 text-[var(--editorial-text)]">
-                          Placeholder detail text for the {label.toLowerCase()}{" "}
-                          stage. Use this section to explain the goals,
-                          tradeoffs, and decisions that shaped the final result.
+                          {stage.description}
                         </p>
                       </div>
                     </AnimatedCard>
@@ -167,25 +143,57 @@ export default async function Page({
                       Notes
                     </p>
                     <div className="mt-5 space-y-5 text-[0.95rem] leading-7 text-[var(--editorial-text)]">
-                      <p>
-                        This is placeholder long-form copy for the case study
-                        body. It gives you room to describe the brief, the
-                        product constraints, and the decisions that mattered
-                        most during execution.
-                      </p>
-                      <p>
-                        You can also use this section for artifacts,
-                        screenshots, architecture notes, launch learnings, or
-                        product outcomes.
-                      </p>
-                      <p>
-                        The page is intentionally scrollable, and the chat
-                        stays fixed at the bottom so visitors can read first and
-                        ask questions whenever they are ready.
-                      </p>
+                      {caseStudy.notes.map((note, index) => {
+                        const isQuote =
+                          note.startsWith('"') && note.endsWith('"');
+
+                        if (isQuote) {
+                          return (
+                            <blockquote
+                              key={note}
+                              className="case-study-pullquote my-8 border-y border-[color:var(--editorial-border)] py-6 text-center text-xl italic leading-9 text-[var(--editorial-text)] sm:px-8 sm:text-2xl"
+                            >
+                              <p className="font-display">{note}</p>
+                            </blockquote>
+                          );
+                        }
+
+                        return (
+                          <p
+                            key={note}
+                            className={
+                              index === 0
+                                ? "text-[1.08rem] leading-7 sm:text-[1.18rem] sm:leading-8"
+                                : undefined
+                            }
+                          >
+                            {note}
+                          </p>
+                        );
+                      })}
                     </div>
                   </section>
                 </AnimatedCard>
+
+                {caseStudy.qa.length > 0 ? (
+                  <AnimatedCard delay={0.46}>
+                    <section className="case-study-card-copy editorial-card rounded-xl border p-6 sm:p-8">
+                      <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
+                        Q&A
+                      </p>
+                      <div className="mt-5 space-y-5 text-[0.95rem] leading-7 text-[var(--editorial-text)]">
+                        {caseStudy.qa.map((entry) => (
+                          <div key={entry.question}>
+                            <h2 className="text-lg font-semibold text-[var(--editorial-text)]">
+                              {entry.question}
+                            </h2>
+                            <p className="mt-2">{entry.answer}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  </AnimatedCard>
+                ) : null}
               </div>
             </AnimatedCard>
           </div>

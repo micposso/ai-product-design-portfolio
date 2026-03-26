@@ -298,7 +298,13 @@ function isProjectQuestion(query: string) {
     "project",
     "thesis",
     "reachy",
+    "reachy mini",
     "embodied ai",
+    "mandarin",
+    "robot tutor",
+    "language tutor",
+    "aixlab",
+    "suny poly",
     "farmers",
     "west africa",
     "pests",
@@ -516,7 +522,14 @@ const caseStudyChunks: Array<KnowledgeChunk> = caseStudies.flatMap(
       title: caseStudy.title,
       slug: caseStudy.slug,
       text: stripMarkdown(
-        `${caseStudy.eyebrow}\n${caseStudy.subtitle}\n${caseStudy.summary}\n${caseStudy.challenge}\n${caseStudy.outcome}`,
+        `${caseStudy.eyebrow}\n${caseStudy.subtitle}\n${caseStudy.summary}\n${caseStudy.challenge}\n${caseStudy.outcome}\n${caseStudy.stages
+          .map(
+            (stage) =>
+              `${stage.label} ${stage.title}\n${stage.description}`,
+          )
+          .join("\n\n")}\n${caseStudy.notes.join("\n\n")}\n${caseStudy.qa
+          .map((entry) => `Q: ${entry.question}\nA: ${entry.answer}`)
+          .join("\n\n")}`,
       ),
     },
     {
@@ -533,6 +546,13 @@ const caseStudyChunks: Array<KnowledgeChunk> = caseStudies.flatMap(
       slug: caseStudy.slug,
       text: stripMarkdown(caseStudy.outcome),
     },
+    ...caseStudy.qa.map((entry, qaIndex) => ({
+      id: `case-study-${caseStudy.slug}-qa-${qaIndex + 1}`,
+      sourceType: "case-study" as const,
+      title: `${caseStudy.title} ${entry.question}`,
+      slug: caseStudy.slug,
+      text: stripMarkdown(`${entry.question}\n${entry.answer}`),
+    })),
   ],
 );
 
@@ -864,7 +884,7 @@ export function classifyQueryIntent(
     return {
       mode: "clarify",
       clarification:
-        "I think you're asking about one of my projects. I can talk about Fusion agent workflows, my Reachy Mini thesis, the farmers vision app, AgentsOnly.io, or the podcast agent. Which one would you like to explore?",
+        "I think you're asking about one of my projects. I can talk about my embodied AI Mandarin tutoring capstone with Reachy Mini, Fusion agent workflows, the farmers vision app, AgentsOnly.io, or the podcast agent. Which one would you like to explore?",
     };
   }
 

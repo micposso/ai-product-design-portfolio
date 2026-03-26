@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { SidebarBrandCard } from "@/components/custom/sidebar-brand-card";
-import { ThemeToggle } from "@/components/custom/theme-toggle";
+import { PageTopNav } from "@/components/custom/page-top-nav";
+import { SidebarRail } from "@/components/custom/sidebar-rail";
 import { insightPosts } from "@/lib/insights";
 
 export default function Page() {
@@ -9,39 +9,10 @@ export default function Page() {
     <div className="px-4 pb-6 md:px-6 md:pb-8">
       <main className="mx-auto flex w-full max-w-screen-xl flex-col p-4 sm:p-6 lg:min-h-[calc(100svh-7rem)] lg:p-8">
         <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-          <div className="flex flex-col justify-center gap-4">
-            <SidebarBrandCard />
-          </div>
+          <SidebarRail />
 
           <div className="flex min-h-0 min-w-0 flex-col gap-4">
-            <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-                <Link
-                  href="/"
-                  className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/case-study"
-                  className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                >
-                  Products
-                </Link>
-                <span className="editorial-sans inline-flex rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)]">
-                  Insights
-                </span>
-                <Link
-                  href="/education"
-                  className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                >
-                  Education
-                </Link>
-              </div>
-              <div className="self-end sm:ml-auto sm:self-auto shrink-0">
-                <ThemeToggle />
-              </div>
-            </div>
+            <PageTopNav active="insights" />
 
             <div className="content-fade-in overflow-hidden rounded-2xl bg-[var(--editorial-shell)] shadow-[0_40px_110px_-52px_rgba(28,23,19,0.5)]">
               <div className="flex flex-col gap-8 p-5 sm:p-6 lg:p-8">

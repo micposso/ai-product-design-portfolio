@@ -4,53 +4,19 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
-import { SidebarBrandCard } from "@/components/custom/sidebar-brand-card";
-import { ThemeToggle } from "@/components/custom/theme-toggle";
+import { PageTopNav } from "@/components/custom/page-top-nav";
+import { SidebarRail } from "@/components/custom/sidebar-rail";
 import { caseStudies } from "@/lib/case-studies";
-
-const featuredCaseStudies = caseStudies.slice(0, 3);
 
 export default function Page() {
   return (
     <div className="px-4 pb-6 md:px-6 md:pb-8">
       <main className="mx-auto flex w-full max-w-screen-xl flex-col p-4 sm:p-6 lg:min-h-[calc(100svh-7rem)] lg:p-8">
         <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-          <div className="flex flex-col justify-center gap-4">
-            <SidebarBrandCard />
-          </div>
+          <SidebarRail />
 
           <div className="flex min-h-0 min-w-0 flex-col gap-4">
-            <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-                <Link
-                  href="/"
-                  className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/case-study"
-                  className="editorial-sans inline-flex rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)]"
-                >
-                  Products
-                </Link>
-                <Link
-                  href="/insights"
-                  className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                >
-                  Insights
-                </Link>
-                <Link
-                  href="/education"
-                  className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                >
-                  Education
-                </Link>
-              </div>
-              <div className="self-end sm:ml-auto sm:self-auto shrink-0">
-                <ThemeToggle />
-              </div>
-            </div>
+            <PageTopNav active="products" />
 
             <motion.div
               initial={{ opacity: 0, y: 32 }}
@@ -75,7 +41,7 @@ export default function Page() {
                 </section>
 
                 <section className="grid gap-4">
-                  {featuredCaseStudies.map((caseStudy, index) => (
+                  {caseStudies.map((caseStudy, index) => (
                     <motion.div
                       key={caseStudy.slug}
                       initial={{ opacity: 0, y: 18 }}

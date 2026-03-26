@@ -104,6 +104,18 @@ function buildTextConversation(
   return `${SITE_NAME}\n\n${INTRO}\n\n${body}`;
 }
 
+function parseEmailAddress(fromAddress: string) {
+  const match = fromAddress.match(/<([^>]+)>/);
+
+  return (match?.[1] ?? fromAddress).trim();
+}
+
+function parseDomainFromEmailAddress(emailAddress: string) {
+  const [, domain = ""] = emailAddress.split("@");
+
+  return domain.toLowerCase();
+}
+
 export async function POST(request: Request) {
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json(
@@ -164,6 +176,20 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errorBody = await response.text();
+      const senderEmailAddress = parseEmailAddress(fromAddress);
+      const senderDomain = parseDomainFromEmailAddress(senderEmailAddress);
+      const resendRejectedUnverifiedDomain =
+        response.status === 403 &&
+        errorBody.toLowerCase().includes("domain is not verified");
+
+      if (resendRejectedUnverifiedDomain) {
+        return NextResponse.json(
+          {
+            error: `The sender domain for EMAIL_FROM (${senderDomain}) is not verified in Resend. Verify that domain in Resend, or temporarily use onboarding@resend.dev as the sender address.`,
+          },
+          { status: 500 },
+        );
+      }
 
       return NextResponse.json(
         { error: `Resend could not send the email. ${errorBody}` },

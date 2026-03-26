@@ -82,16 +82,16 @@ export function CaseStudyChat({
   return (
     <>
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6 md:pb-6">
-        <div className="editorial-card pointer-events-auto flex w-full max-w-2xl items-end rounded-[1.75rem] border p-3">
+        <div className="editorial-card pointer-events-auto flex w-full max-w-2xl items-end rounded-[1.75rem] border p-2 sm:p-3">
           <button
             type="button"
             onClick={() => setIsFocused(true)}
-            className="flex-1 rounded-xl border border-[color:var(--editorial-border)] bg-[var(--editorial-input)] px-4 py-3 text-left text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] transition hover:bg-[var(--editorial-input-hover)]"
+            className="flex-1 rounded-xl border border-[color:var(--editorial-border)] bg-[var(--editorial-input)] px-4 py-2.5 text-left text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] transition hover:bg-[var(--editorial-input-hover)] sm:py-3"
           >
             <span className="editorial-sans block text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-placeholder)]">
               {dockLabel}
             </span>
-            <span className="mt-1 block text-sm text-[var(--editorial-text)]">
+            <span className="mt-1 hidden text-sm text-[var(--editorial-text)] sm:block">
               {promptHint}
             </span>
           </button>

@@ -1,10 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AnimatedCard } from "@/components/custom/animated-card";
 import { CaseStudyChat } from "@/components/custom/case-study-chat";
-import { SidebarBrandCard } from "@/components/custom/sidebar-brand-card";
-import { ThemeToggle } from "@/components/custom/theme-toggle";
+import { PageTopNav } from "@/components/custom/page-top-nav";
+import { SidebarRail } from "@/components/custom/sidebar-rail";
 import { getInsightBySlug } from "@/lib/insights";
 import { generateUUID } from "@/lib/utils";
 
@@ -26,41 +25,10 @@ export default async function Page({
     <div className="px-4 pb-36 md:px-6 md:pb-40">
       <article className="mx-auto flex w-full max-w-screen-xl flex-col p-4 sm:p-6 lg:min-h-[calc(100svh-7rem)] lg:p-8">
         <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-          <div className="flex flex-col justify-center gap-4">
-            <SidebarBrandCard />
-          </div>
+          <SidebarRail />
 
           <div className="flex min-h-0 min-w-0 flex-col gap-4">
-            <div className="flex flex-col gap-3">
-              <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-                  <Link
-                    href="/"
-                    className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                  >
-                    Home
-                  </Link>
-                  <Link
-                    href="/case-study"
-                    className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                  >
-                    Products
-                  </Link>
-                  <span className="editorial-sans inline-flex rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)]">
-                    Insights
-                  </span>
-                  <Link
-                    href="/education"
-                    className="editorial-card editorial-sans inline-flex rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                  >
-                    Education
-                  </Link>
-                </div>
-                <div className="self-end sm:ml-auto sm:self-auto shrink-0">
-                  <ThemeToggle />
-                </div>
-              </div>
-            </div>
+            <PageTopNav active="insights" />
 
             <AnimatedCard
               delay={0.08}
@@ -99,9 +67,11 @@ export default async function Page({
                           delay={0.2 + index * 0.05}
                         >
                           <div className="space-y-4">
-                            <h2 className="break-words text-2xl font-bold text-[var(--editorial-text)]">
-                              {section.title}
-                            </h2>
+                            {section.title !== "Content" ? (
+                              <h2 className="break-words text-2xl font-bold text-[var(--editorial-text)]">
+                                {section.title}
+                              </h2>
+                            ) : null}
                             {section.content
                               .split(/\n\n+/)
                               .map((paragraph) => paragraph.trim())
@@ -123,7 +93,15 @@ export default async function Page({
                                       ))}
                                   </ul>
                                 ) : (
-                                  <p key={`${section.title}-${paragraphIndex}`}>
+                                  <p
+                                    key={`${section.title}-${paragraphIndex}`}
+                                    className={
+                                      section.title === "Content" &&
+                                      paragraphIndex === 0
+                                        ? "text-[1.08rem] leading-7 text-[var(--editorial-text)] sm:text-[1.18rem] sm:leading-8"
+                                        : undefined
+                                    }
+                                  >
                                     {paragraph}
                                   </p>
                                 ),

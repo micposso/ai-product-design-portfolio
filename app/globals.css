@@ -264,6 +264,12 @@
         font-family: var(--font-body), sans-serif !important;
     }
 
+    .case-study-pullquote,
+    .case-study-pullquote p {
+        font-family: var(--font-display), serif !important;
+        font-style: italic;
+    }
+
     .insight-copy,
     .insight-copy p,
     .insight-copy li {
