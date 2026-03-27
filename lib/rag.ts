@@ -118,6 +118,10 @@ const PORTFOLIO_SCOPE_TERMS = [
   "farmers",
   "vision",
   "podcast",
+  "case",
+  "study",
+  "studies",
+  "portfolio",
   "trust",
   "insight",
   "insights",
@@ -131,6 +135,31 @@ const PORTFOLIO_SCOPE_TERMS = [
   "thoughts",
   "clarity",
 ];
+
+function normalizeAlias(text: string) {
+  return normalizeText(text)
+    .replace(/[^a-z0-9\s]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function collectAliasPhrases(values: Array<string | undefined>) {
+  return Array.from(
+    new Set(
+      values
+        .flatMap((value) => {
+          if (!value) {
+            return [];
+          }
+
+          const normalizedValue = normalizeAlias(value);
+
+          return normalizedValue ? [normalizedValue] : [];
+        })
+        .filter((value) => value.length > 2),
+    ),
+  );
+}
 
 function stripMarkdown(text: string) {
   return text
@@ -310,6 +339,9 @@ function isProjectQuestion(query: string) {
     "pests",
     "agentsonly",
     "agentsonly.io",
+    "clawcast",
+    "green room",
+    "interactive pdf",
     "podcast",
     "tts",
     "voice",
@@ -334,6 +366,26 @@ function isInsightQuestion(query: string) {
     "clarity instead of hype",
     "trust in ai interfaces",
     "shipping fast",
+    "metaverse",
+    "expresso",
+    "designing for agents",
+  ].some((pattern) => normalizedQuery.includes(pattern));
+}
+
+function isCaseStudyQuestion(query: string) {
+  const normalizedQuery = normalizeText(query);
+
+  return [
+    "case study",
+    "case studies",
+    "portfolio piece",
+    "portfolio project",
+    "clawcast",
+    "green room",
+    "interactive pdf",
+    "agentsonly",
+    "reachy mini",
+    "mandarin robot",
   ].some((pattern) => normalizedQuery.includes(pattern));
 }
 
@@ -342,6 +394,7 @@ function isLikelyPortfolioQuestion(query: string) {
     isJobHistoryQuestion(query) ||
     isTeachingQuestion(query) ||
     isProjectQuestion(query) ||
+    isCaseStudyQuestion(query) ||
     isInsightQuestion(query) ||
     scoreScope(query) >= 2
   );
@@ -556,6 +609,22 @@ const caseStudyChunks: Array<KnowledgeChunk> = caseStudies.flatMap(
   ],
 );
 
+const KNOWN_PORTFOLIO_ALIASES = {
+  project: collectAliasPhrases(
+    projectDocuments.flatMap((project) => [project.title, project.slug]),
+  ),
+  insight: collectAliasPhrases(
+    insightPosts.flatMap((post) => [post.title, post.slug, post.category]),
+  ),
+  "case-study": collectAliasPhrases(
+    caseStudies.flatMap((caseStudy) => [
+      caseStudy.title,
+      caseStudy.slug,
+      ...caseStudy.tags,
+    ]),
+  ),
+};
+
 export const portfolioKnowledgeBase: Array<KnowledgeChunk> = [
   ...profileChunks,
   ...projectChunks,
@@ -590,7 +659,67 @@ function scoreScope(query: string) {
     score += 3;
   }
 
+  if (isCaseStudyQuestion(query)) {
+    score += 3;
+  }
+
   return score;
+}
+
+function hasKnownPortfolioAliasMatch(
+  query: string,
+  sourceTypes: Array<"project" | "insight" | "case-study">,
+) {
+  const normalizedQuery = normalizeAlias(query);
+
+  if (!normalizedQuery) {
+    return false;
+  }
+
+  return sourceTypes.some((sourceType) =>
+    KNOWN_PORTFOLIO_ALIASES[sourceType].some(
+      (alias) =>
+        normalizedQuery.includes(alias) ||
+        (normalizedQuery.length >= 6 && alias.includes(normalizedQuery)),
+    ),
+  );
+}
+
+function hasSpecificChunkMatch(query: string, chunk: KnowledgeChunk) {
+  const normalizedQuery = normalizeAlias(query);
+  const queryTokens = uniqueTokens(query);
+  const aliasValues = collectAliasPhrases([chunk.title, chunk.slug]);
+
+  if (
+    aliasValues.some(
+      (alias) =>
+        normalizedQuery.includes(alias) ||
+        (normalizedQuery.length >= 6 && alias.includes(normalizedQuery)),
+    )
+  ) {
+    return true;
+  }
+
+  return aliasValues.some((alias) => {
+    const aliasTokens = Array.from(uniqueTokens(alias));
+    const overlap = aliasTokens.filter((token) => queryTokens.has(token)).length;
+    return overlap >= Math.min(2, aliasTokens.length);
+  });
+}
+
+function hasPortfolioContentSignal(
+  retrievedChunks: ReturnType<typeof retrieveRelevantChunks>,
+) {
+  if (retrievedChunks.length === 0) {
+    return false;
+  }
+
+  const topScore = retrievedChunks[0]?.score ?? 0;
+  const portfolioChunkCount = retrievedChunks.filter(
+    (entry) => entry.chunk.sourceType !== "profile",
+  ).length;
+
+  return topScore >= 2 || portfolioChunkCount >= 2;
 }
 
 function scoreChunk(query: string, chunk: KnowledgeChunk) {
@@ -665,6 +794,25 @@ function scoreChunk(query: string, chunk: KnowledgeChunk) {
     if (/excerpt|content|takeaways/i.test(chunk.title)) {
       score += 2;
     }
+  }
+
+  if (isCaseStudyQuestion(query)) {
+    if (chunk.sourceType === "case-study") {
+      score += 5;
+    }
+
+    if (/case study|challenge|outcome/i.test(chunk.title)) {
+      score += 2;
+    }
+  }
+
+  if (
+    (chunk.sourceType === "project" ||
+      chunk.sourceType === "insight" ||
+      chunk.sourceType === "case-study") &&
+    hasSpecificChunkMatch(query, chunk)
+  ) {
+    score += 4;
   }
 
   return score;
@@ -808,6 +956,16 @@ export function retrieveRelevantChunks(
       }));
   }
 
+  if (isCaseStudyQuestion(query)) {
+    return portfolioKnowledgeBase
+      .filter((chunk) => chunk.sourceType === "case-study")
+      .slice(0, limit)
+      .map((chunk, index) => ({
+        chunk,
+        score: Math.max(limit - index, 1),
+      }));
+  }
+
   return scored;
 }
 
@@ -846,8 +1004,22 @@ export function shouldAnswerFromProfile(
   }
 
   if (
+    hasKnownPortfolioAliasMatch(query, ["project", "insight", "case-study"]) &&
+    retrievedChunks.some(
+      (entry) =>
+        (entry.chunk.sourceType === "project" ||
+          entry.chunk.sourceType === "insight" ||
+          entry.chunk.sourceType === "case-study") &&
+        hasSpecificChunkMatch(query, entry.chunk),
+    )
+  ) {
+    return hasStrongRetrieval || topScore >= 2;
+  }
+
+  if (
     isJobHistoryQuestion(query) ||
     isProjectQuestion(query) ||
+    isCaseStudyQuestion(query) ||
     isInsightQuestion(query)
   ) {
     return hasStrongRetrieval || hasEnoughSignal;
@@ -880,11 +1052,11 @@ export function classifyQueryIntent(
     };
   }
 
-  if (isProjectQuestion(query)) {
+  if (isProjectQuestion(query) || isCaseStudyQuestion(query)) {
     return {
       mode: "clarify",
       clarification:
-        "I think you're asking about one of my projects. I can talk about my embodied AI Mandarin tutoring capstone with Reachy Mini, Fusion agent workflows, the farmers vision app, AgentsOnly.io, or the podcast agent. Which one would you like to explore?",
+        "I think you're asking about one of my projects or case studies. I can talk about the Reachy Mini Mandarin tutor, AgentsOnly, the African pest detector, Green Room, or Clawcast. Which one would you like to explore?",
     };
   }
 
@@ -893,6 +1065,23 @@ export function classifyQueryIntent(
       mode: "clarify",
       clarification:
         "I can help with my role history and teaching background. Do you want to know about my current role, previous roles, or my teaching experience?",
+    };
+  }
+
+  if (
+    hasPortfolioContentSignal(retrievedChunks) &&
+    (scoreScope(query) >= 1 ||
+      retrievedChunks.some(
+        (entry) =>
+          entry.chunk.sourceType === "project" ||
+          entry.chunk.sourceType === "insight" ||
+          entry.chunk.sourceType === "case-study",
+      ))
+  ) {
+    return {
+      mode: "clarify",
+      clarification:
+        "I think you're asking about something in my portfolio. I can help with my projects, case studies, writing, or experience. What would you like me to focus on?",
     };
   }
 
