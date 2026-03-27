@@ -1,13 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { ReactNode } from "react";
 
-import { SidebarAudioPlayer } from "./sidebar-audio-player";
+import { PageTopNav } from "./page-top-nav";
 import { SidebarBrandCard } from "./sidebar-brand-card";
-import { ThemeToggle } from "./theme-toggle";
-import { Button } from "../ui/button";
 
 export const Overview = ({
   children,
@@ -23,20 +20,6 @@ export const Overview = ({
   return (
     <section className="w-full p-3 sm:p-6 lg:min-h-[calc(100svh-7rem)] lg:p-8">
       <div className="flex flex-col gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease: "easeOut", delay: 0.02 }}
-          className="flex items-center gap-3 lg:hidden"
-        >
-          <div className="min-w-0 flex-1 lg:ml-auto lg:max-w-xs">
-            <SidebarAudioPlayer />
-          </div>
-          <div className="shrink-0">
-            <ThemeToggle />
-          </div>
-        </motion.div>
-
         <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
           <motion.div
             initial={{ opacity: 0, x: -24 }}
@@ -52,47 +35,9 @@ export const Overview = ({
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, ease: "easeOut", delay: 0.04 }}
-              className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
+              className="w-full"
             >
-              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="editorial-sans rounded-full border-transparent bg-[var(--color-brand-primary)] px-4 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-[0_16px_40px_-28px_rgba(34,25,19,0.18)] hover:opacity-95 dark:border-transparent"
-                >
-                  <Link href="/">Home</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="editorial-card editorial-sans rounded-full px-4 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                >
-                  <Link href="/case-study">Products</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="editorial-card editorial-sans rounded-full px-4 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                >
-                  <Link href="/insights">Insights</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="editorial-card editorial-sans rounded-full px-4 text-xs font-semibold uppercase tracking-[0.16em] transition hover:brightness-110"
-                >
-                  <Link href="/education">Education</Link>
-                </Button>
-              </div>
-
-              <div className="hidden shrink-0 self-end sm:ml-auto sm:self-auto lg:block">
-                <ThemeToggle />
-              </div>
-
+              <PageTopNav active="home" />
             </motion.div>
 
             <motion.div

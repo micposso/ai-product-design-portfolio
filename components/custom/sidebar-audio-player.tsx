@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
-const AUDIO_SRC = "/audio/voice.mp3";
+const AUDIO_SRC = "/api/podcast-audio";
 
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) {
@@ -169,9 +169,9 @@ export function SidebarAudioPlayer() {
             </p>
             <p className="mt-1 text-sm leading-5 text-[var(--editorial-text)] sm:truncate">
               {hasError
-                ? "Unable to load /public/audio/voice.mp3"
+                ? "Unable to load the generated podcast audio"
                 : isReady
-                  ? "A short introduction to the work"
+                  ? "A two-host podcast about the work"
                   : "Loading audio..."}
             </p>
           </div>
