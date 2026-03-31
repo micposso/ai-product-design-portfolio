@@ -78,7 +78,9 @@ export function MultimodalInput({
   textareaRows?: number;
   suggestedActionsClassName?: string;
   suggestedActions?: Array<SuggestedAction>;
-  onSuggestedAction?: () => void;
+  onSuggestedAction?: (
+    action: string,
+  ) => Promise<string | null | undefined> | void;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
@@ -287,7 +289,11 @@ export function MultimodalInput({
               >
                 <button
                   onClick={async () => {
-                    onSuggestedAction?.();
+                    if (onSuggestedAction) {
+                      await onSuggestedAction(suggestedAction.action);
+                      return;
+                    }
+
                     append({
                       role: "user",
                       content: suggestedAction.action,

@@ -89,4 +89,6 @@ export function usePersistedChatState({
 
     window.sessionStorage.setItem(storageKey, JSON.stringify(nextState));
   }, [hasHydrated, input, messages, storageKey]);
+
+  return { hasHydrated };
 }

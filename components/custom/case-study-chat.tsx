@@ -56,7 +56,18 @@ export function CaseStudyChat({
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
 
-  usePersistedChatState({
+  const handleSuggestedAction = async (action: string) =>
+    append(
+      {
+        role: "user",
+        content: action,
+      },
+      {
+        body: { id, pageContext },
+      },
+    );
+
+  const { hasHydrated } = usePersistedChatState({
     storageKey: `portfolio-chat-context:${id}`,
     input,
     setInput,
@@ -77,10 +88,40 @@ export function CaseStudyChat({
     };
   }, [isFocused]);
 
+  useEffect(() => {
+    if (!isFocused || !hasHydrated || isLoading) {
+      return;
+    }
+
+    if (messages.length > 0 || input.trim().length > 0) {
+      return;
+    }
+
+    void append(
+      {
+        role: "user",
+        content: promptHint,
+      },
+      {
+        body: { id, pageContext },
+      },
+    );
+  }, [
+    append,
+    hasHydrated,
+    id,
+    input,
+    isFocused,
+    isLoading,
+    messages.length,
+    pageContext,
+    promptHint,
+  ]);
+
   return (
     <>
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6 md:pb-6">
-        <div className="editorial-card pointer-events-auto flex w-full max-w-2xl items-end rounded-[1.75rem] border p-2 sm:p-3">
+        <div className="pointer-events-auto flex w-full max-w-2xl items-end rounded-[1.75rem] border border-transparent bg-[var(--color-brand-primary)] p-2 shadow-[0_28px_70px_-24px_rgba(20,28,20,0.5),0_12px_28px_-18px_rgba(20,28,20,0.38)] sm:p-3">
           <button
             type="button"
             onClick={() => setIsFocused(true)}
@@ -154,6 +195,7 @@ export function CaseStudyChat({
                         textareaRows={messages.length === 0 ? 2 : 3}
                         suggestedActionsClassName="rounded-lg border border-[color:var(--editorial-border)] bg-[var(--editorial-input)] px-4 py-4 shadow-[var(--editorial-shadow)] hover:bg-[var(--editorial-input-hover)]"
                         suggestedActions={suggestedActions}
+                        onSuggestedAction={handleSuggestedAction}
                       />
                     </form>
 

@@ -1089,6 +1089,19 @@ export function classifyQueryIntent(
     return { mode: "smalltalk" };
   }
 
+  const isCurrentCaseStudyQuestion =
+    pageContext?.type === "case-study" &&
+    retrievedChunks.some(
+      (entry) =>
+        entry.chunk.sourceType === "case-study" &&
+        entry.chunk.slug === pageContext.slug,
+    ) &&
+    (isPageRelativeQuestion(query) || isCaseStudyQuestion(query));
+
+  if (isCurrentCaseStudyQuestion) {
+    return { mode: "answer" };
+  }
+
   if (
     retrievedChunks.length > 0 &&
     shouldAnswerFromProfile(query, retrievedChunks, pageContext)
