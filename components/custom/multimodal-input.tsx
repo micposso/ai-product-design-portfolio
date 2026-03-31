@@ -288,6 +288,7 @@ export function MultimodalInput({
                 className={index > 1 ? "hidden sm:block" : "block"}
               >
                 <button
+                  type="button"
                   onClick={async () => {
                     if (onSuggestedAction) {
                       await onSuggestedAction(suggestedAction.action);

@@ -2,13 +2,14 @@
 
 import { Attachment, Message } from "ai";
 import { useChat } from "ai/react";
-import { Boxes, BriefcaseBusiness, Eye, Route } from "lucide-react";
-import { useState } from "react";
+import { Boxes, BriefcaseBusiness, Eye, Route, X } from "lucide-react";
+import { useCallback, useState } from "react";
 
 import { Message as PreviewMessage } from "@/components/custom/message";
 import { TypingIndicator } from "@/components/custom/typing-indicator";
 import { usePersistedChatState } from "@/components/custom/use-persisted-chat-state";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
+import { Button } from "@/components/ui/button";
 
 import { ImageCarousel } from "./image-carousel";
 import { MultimodalInput } from "./multimodal-input";
@@ -81,6 +82,17 @@ export function Chat({
     setMessages,
   });
 
+  const closeChat = useCallback(() => {
+    if (isLoading) {
+      stop();
+    }
+
+    setIsPromptExpanded(false);
+    setInput("");
+    setMessages([]);
+    setAttachments([]);
+  }, [isLoading, setInput, setMessages, stop]);
+
   return (
     <div className="px-4 pb-6 md:px-6 md:pb-8">
       <div className="mx-auto flex w-full max-w-screen-xl flex-col">
@@ -88,13 +100,28 @@ export function Chat({
           carousel={<ImageCarousel messages={messages} />}
           expanded={isExpanded}
           panelTitle={
-            <div className="w-full border-l border-[color:var(--editorial-border)] pl-4 pb-2">
-              <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
-                Want to chat?
-              </p>
-              <p className="mt-1 text-base font-normal leading-7 text-[var(--editorial-text)]">
-                Explore the products, process, and decisions behind the work.
-              </p>
+            <div className="flex w-full items-start justify-between gap-4 border-l border-[color:var(--editorial-border)] pl-4 pb-2">
+              <div>
+                <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
+                  Want to chat?
+                </p>
+                <p className="mt-1 text-base font-normal leading-7 text-[var(--editorial-text)]">
+                  Explore the products, process, and decisions behind the work.
+                </p>
+              </div>
+
+              {isExpanded ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={closeChat}
+                  className="size-9 shrink-0 rounded-full border-[color:var(--editorial-border)] bg-[var(--editorial-card)] text-[var(--editorial-text)] shadow-[var(--editorial-shadow)] hover:brightness-110"
+                  aria-label="Close chat"
+                >
+                  <X className="size-4" />
+                </Button>
+              ) : null}
             </div>
           }
         >
@@ -152,7 +179,13 @@ export function Chat({
                     : undefined
                 }
                 suggestedActions={landingSuggestedActions}
-                onSuggestedAction={() => setIsPromptExpanded(true)}
+                onSuggestedAction={(action) => {
+                  setIsPromptExpanded(true);
+                  return append({
+                    role: "user",
+                    content: action,
+                  });
+                }}
               />
             </form>
           </div>
