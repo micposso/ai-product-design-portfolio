@@ -53,7 +53,7 @@ export function SidebarBrandCard() {
         </span>
       </Link>
 
-        <div className="mt-5 space-y-4">
+        <div className="mt-5 flex h-[calc(100%-5.5rem)] flex-col justify-between">
           <div className="border-l border-[color:var(--editorial-border)] pl-4 text-sm text-[var(--editorial-text)]">
             <p className="editorial-sans editorial-subtle text-xs font-semibold uppercase tracking-[0.18em]">
               Current focus
