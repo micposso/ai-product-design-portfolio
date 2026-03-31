@@ -1,0 +1,41 @@
+{
+  "linesPath": "../podcast-lines.json",
+  "pauseMs": 250,
+  "device": "cuda",
+  "comparison": {
+    "maxLines": 6,
+    "lineNumbers": [1, 2, 3, 4, 5, 6]
+  },
+  "hosts": {
+    "A": {
+      "name": "Maya",
+      "accent": "General American",
+      "styleHint": "Warm, polished, slightly upbeat podcast host",
+      "styleHintMode": "none",
+      "referenceAudio": "./references/host-a.wav",
+      "referenceText": "Welcome back to the show. Today we are exploring design, AI, and the systems people trust. This is a short reference sample for a warm and polished podcast voice.",
+      "chatterbox": {
+        "exaggeration": 0.35,
+        "cfgWeight": 0.5
+      },
+      "f5tts": {
+        "speed": 1.0
+      }
+    },
+    "B": {
+      "name": "Leo",
+      "accent": "Light British",
+      "styleHint": "Calm, analytical, documentary-style podcast host",
+      "styleHintMode": "none",
+      "referenceAudio": "./references/host-b.wav",
+      "referenceText": "Welcome back to the show. Today we are exploring design, AI, and the systems people trust. This is a short reference sample for a warm and polished podcast voice.",
+      "chatterbox": {
+        "exaggeration": 0.3,
+        "cfgWeight": 0.45
+      },
+      "f5tts": {
+        "speed": 0.98
+      }
+    }
+  }
+}

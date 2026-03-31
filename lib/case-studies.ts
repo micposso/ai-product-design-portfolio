@@ -21,6 +21,28 @@ export type CaseStudy = {
   tags: string[];
 };
 
+export function buildCaseStudyContextDocument(caseStudy: CaseStudy) {
+  return [
+    caseStudy.eyebrow,
+    caseStudy.title,
+    caseStudy.subtitle,
+    `Summary: ${caseStudy.summary}`,
+    `Challenge: ${caseStudy.challenge}`,
+    `Outcome: ${caseStudy.outcome}`,
+    ...caseStudy.stages.map(
+      (stage) =>
+        `${stage.label} ${stage.title}\n${stage.description}`,
+    ),
+    ...caseStudy.notes,
+    ...caseStudy.qa.map(
+      (entry) => `Q: ${entry.question}\nA: ${entry.answer}`,
+    ),
+    caseStudy.tags.length > 0 ? `Tags: ${caseStudy.tags.join(", ")}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 export const caseStudies: Array<CaseStudy> = [
   {
     slug: "teaching-mandarin-with-a-robot-that-thinks",

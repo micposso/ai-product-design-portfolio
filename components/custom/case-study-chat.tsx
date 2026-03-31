@@ -10,6 +10,7 @@ import { Message as PreviewMessage } from "@/components/custom/message";
 import { TypingIndicator } from "@/components/custom/typing-indicator";
 import { usePersistedChatState } from "@/components/custom/use-persisted-chat-state";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
+import { PageContext } from "@/lib/rag";
 
 import { MultimodalInput } from "./multimodal-input";
 import { Button } from "../ui/button";
@@ -26,10 +27,7 @@ export function CaseStudyChat({
   promptHint: string;
   dockLabel?: string;
   overlayTitle?: string;
-  pageContext?: {
-    type: "insight" | "case-study";
-    slug: string;
-  };
+  pageContext?: PageContext;
   suggestedActions?: Array<{
     title: string;
     label: string;

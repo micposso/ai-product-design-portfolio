@@ -1,0 +1,6 @@
+]633;E;for f in podcast/local-tts/output/chatterbox/lines/*.wav\x3b do printf "file '%s'\\n" "$(pwd -W)/${f}" \x3b done > podcast/local-tts/output/chatterbox/concat.txt;208993c6-3d4b-401e-9337-f7aef92dd24f]633;Cfile 'C:/dev/gemini-chatbot/podcast/local-tts/output/chatterbox/lines/01-A.wav'
+file 'C:/dev/gemini-chatbot/podcast/local-tts/output/chatterbox/lines/02-B.wav'
+file 'C:/dev/gemini-chatbot/podcast/local-tts/output/chatterbox/lines/03-A.wav'
+file 'C:/dev/gemini-chatbot/podcast/local-tts/output/chatterbox/lines/04-B.wav'
+file 'C:/dev/gemini-chatbot/podcast/local-tts/output/chatterbox/lines/05-A.wav'
+file 'C:/dev/gemini-chatbot/podcast/local-tts/output/chatterbox/lines/06-B.wav'

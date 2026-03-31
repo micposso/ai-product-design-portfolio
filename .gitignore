@@ -16,6 +16,14 @@ build
 # misc
 .DS_Store
 *.pem
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.venvs/
+venv/
+env/
 
 # debug
 npm-debug.log*

@@ -2,49 +2,53 @@
 
 ## Title
 
-Michael Posso: Designing AI Products That People Can Actually Trust
+Michael Posso: Six Case Studies in Trust, AI, and Human-Centered Product Design
 
 ## Hosts
 
-- Host A: Maya
-- Host B: Leo
+- Host A: Maya, female
+- Host B: Leo, male
 
 ## Script
 
-Maya: Hey everyone, welcome back. Today we are spotlighting a builder whose work sits right at the intersection of AI, product design, and human experience. We are talking about Michael Posso.
+Maya: Welcome back. Today we are taking a guided tour through Michael Posso's case studies. What stands out right away is the range: embodied AI, agent trust infrastructure, agricultural diagnosis, edge AI research, interactive media, and autonomous podcasting. Different domains, but a very consistent point of view.
 
-Leo: And what makes Michael especially interesting is that his work is not just about using AI because it is trendy. A lot of it is grounded in one question: how do you design AI systems that are actually useful, trustworthy, and usable by real people?
+Leo: Exactly. The throughline is not a favorite industry or even a favorite tool. It is a product question. How do you take complicated systems and make them legible, trustworthy, and useful in real human settings?
 
-Maya: Exactly. Across his portfolio, you can see a pattern. He moves between product thinking, interface design, agent workflows, and emerging AI systems, but he keeps coming back to clarity. Not hype. Not spectacle. Clarity.
+Maya: The clearest example might be the embodied AI Mandarin tutor. It uses a Reachy Mini robot as a language-learning partner, but the real idea is not novelty. The question is whether embodiment can improve learning by combining voice, gesture, gaze, and adaptive lesson flow in one tutoring system.
 
-Leo: You can see that in projects like AgentsOnly, which explores a trust layer for the agentic economy, and in work like Green Room and Clawcast, where the bigger theme is how AI changes creative tools and media workflows. There is a strong throughline in all of it: if agents are going to do more of the work, the systems around them need better structure, better trust signals, and better design.
+Leo: And the important thing is that the case study respects the complexity. This is not just a chatbot inside a robot shell. It involves speech recognition, prompt generation, pronunciation-aware feedback, robot behavior, and latency control. Michael frames it as a Research through Design prototype, which makes the work feel both ambitious and honest.
 
-Maya: But if we had to pick the standout AI project in Michael's body of work, I would go with his embodied AI Mandarin tutoring system built on Reachy Mini.
+Maya: That same honesty shows up in AgentsOnly, but in a completely different space. Here the challenge is the agentic economy. If autonomous agents are going to interact with services, they cannot depend on human-facing websites and vague trust assumptions. They need structured, machine-readable ways to evaluate what is reliable.
 
-Leo: Same here. It is a capstone project, but it feels much bigger than that. Michael designed and built an embodied AI language tutor for Mandarin Chinese using a desktop humanoid robot. So instead of a purely screen-based assistant, the learner interacts with a physical robot that can speak, listen, gesture, and direct its gaze.
+Leo: Right. AgentsOnly treats trust as infrastructure. Instead of forcing agents to interpret marketing pages and messy documentation, the concept creates a registry of capabilities, endpoints, and certification signals. It is a strong example of Michael looking for the missing layer that makes a larger AI behavior actually workable.
 
-Maya: That alone is compelling, but the deeper idea is even more interesting. The project asks whether a physical robot can create a better learning experience than a screen-based agent, especially for something like Mandarin, where tone, rhythm, and social presence really matter.
+Maya: Then there is the African Pest Detector case study, which brings the focus down to deployment constraints. This project is about helping small-scale farmers identify crop pests and diseases with low-end phones, uneven connectivity, and interfaces that need to stay understandable for non-expert users.
 
-Leo: And this is where the project gets technically ambitious. The system is not a fixed script. It is an agentic workflow. The robot listens to the learner, routes audio through speech recognition, generates teaching prompts dynamically, evaluates responses, adjusts difficulty, and coordinates voice output with gesture and gaze.
+Leo: I love that the value proposition is not just model accuracy. It is decision support. A farmer takes a photo, the system predicts the likely issue, and then a lightweight reasoning layer translates that result into plain-language advice. The product thinking is practical all the way through.
 
-Maya: In other words, it is doing more than chatting. It is orchestrating a lesson in real time.
+Maya: And importantly, the MVP stays narrow. Lightweight vision models, mobile-first design, and a disciplined workflow from image to diagnosis to next step. That constraint-aware approach says a lot about how Michael thinks. He is not trying to overbuild. He is trying to make something usable under real conditions.
 
-Leo: Right, and Michael had to balance pedagogy with engineering constraints. He was working with limited onboard compute, latency across speech and model calls, Mandarin tone recognition, and the challenge of making robot behavior feel coherent rather than stitched together.
+Leo: AIX Lab at SUNY Poly helps explain where some of that thinking comes from. In that case study, Michael is working on edge AI, small language models, open-source AI applications, and interface systems designed for practical deployment. It feels like the research backbone behind several of the other projects.
 
-Maya: I also like that he framed it as a Research through Design project. Instead of pretending the prototype alone proves educational outcomes, he scoped it honestly. He used simulated learner personas in MuJoCo, brought in review from a Mandarin teacher, and treated the prototype as a design argument for what embodied AI learning could become.
+Maya: Yes, because AIX is where the concerns about smaller models, deployable systems, accessibility, and real-world environments become explicit. It also matters that the work spans both research and interaction design. He is not only asking what models can do. He is asking how people meet those systems.
 
-Leo: That honesty matters. It shows a mature way of working with AI. The point is not just to say, look, I made a robot talk. The point is to show how embodiment, instructional design, and agentic orchestration can come together in a system that is actually testable and extensible.
+Leo: Then you get to Green Room, which is older and not centered on AI, but still incredibly revealing. Michael reimagined a Showtime press kit as an interactive PDF with embedded audio, motion, and layered navigation. The point was simple: if the show itself is dynamic, the communication around it cannot be flat.
 
-Maya: And honestly, that tells you a lot about Michael's broader approach. Whether he is thinking about agent trust, AI interfaces, or autonomous media systems, he seems most interested in the layer between technical capability and human experience.
+Maya: That project matters because it shows this portfolio did not suddenly become thoughtful when AI entered the story. The instinct was already there. He was already designing information as an experience, already thinking about pacing, narrative flow, and how a medium should reflect the thing it is describing.
 
-Leo: That is a great way to put it. He is not only building with AI. He is designing the conditions under which AI becomes legible, credible, and useful.
+Leo: And that leads naturally to Clawcast, which asks what happens when AI agents become media creators. In this concept, agents research topics, write scripts, synthesize voice, and publish podcast episodes. But the interesting part is not the automation itself. It is the platform question underneath it.
 
-Maya: So if you are looking at Michael Posso's work as a whole, the headline is this: he combines product design, systems thinking, and emerging AI workflows in a way that stays grounded in human reality.
+Maya: Exactly. If agents become creators, then products need rules for attribution, moderation, supervision, verification, and trust. That connects Clawcast back to AgentsOnly in a really elegant way. Different use case, same deeper concern: how do you make autonomous systems visible and accountable instead of opaque and chaotic?
 
-Leo: And if you want the single best example of that, start with the embodied Mandarin tutor. It captures research, interface design, orchestration, multimodal interaction, and a very clear point of view on where AI products can go next.
+Leo: When you step back, the six case studies read like one larger argument. The Mandarin tutor is about embodied orchestration. AgentsOnly is about trust infrastructure. The pest detector is about accessible AI in constrained settings. AIX is about deployable intelligence. Green Room is about experiential communication. Clawcast is about agents as creators.
 
-Maya: That is our quick spotlight for today. Michael Posso is definitely someone to watch if you care about AI products that are not just technically impressive, but thoughtfully designed.
+Maya: And together they suggest a pretty clear thesis. Michael Posso is most interested in the layer between raw technical capability and lived human experience. That is where his work keeps landing: trust, clarity, accessibility, pacing, and product sense.
 
-Leo: Thanks for listening, and we will catch you on the next one.
+Leo: Which is why this portfolio feels coherent even though the projects are diverse. The point of view is stable. He is designing systems that do not just function. They make sense.
 
-Maya: Goodbye everyone.
+Maya: That is our tour for today. Thanks for listening.
+
+Leo: See you next time.
+
+Maya: Bye everyone.

@@ -6,7 +6,10 @@ import { AnimatedCard } from "@/components/custom/animated-card";
 import { CaseStudyChat } from "@/components/custom/case-study-chat";
 import { PageTopNav } from "@/components/custom/page-top-nav";
 import { SidebarRail } from "@/components/custom/sidebar-rail";
-import { getCaseStudyBySlug } from "@/lib/case-studies";
+import {
+  buildCaseStudyContextDocument,
+  getCaseStudyBySlug,
+} from "@/lib/case-studies";
 import { generateUUID } from "@/lib/utils";
 
 export default async function Page({
@@ -22,6 +25,7 @@ export default async function Page({
   }
 
   const chatId = generateUUID();
+  const caseStudyDocument = buildCaseStudyContextDocument(caseStudy);
 
   return (
     <div className="px-4 pb-36 md:px-6 md:pb-40">
@@ -203,7 +207,12 @@ export default async function Page({
       <CaseStudyChat
         id={chatId}
         promptHint={caseStudy.prompt}
-        pageContext={{ type: "case-study", slug: caseStudy.slug }}
+        pageContext={{
+          type: "case-study",
+          slug: caseStudy.slug,
+          title: caseStudy.title,
+          documentText: caseStudyDocument,
+        }}
         suggestedActions={[
           {
             title: "What was the",

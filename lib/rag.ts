@@ -22,6 +22,8 @@ export type QueryIntent = {
 export type PageContext = {
   type: "insight" | "case-study";
   slug: string;
+  title?: string;
+  documentText?: string;
 };
 
 const STOP_WORDS = new Set([
@@ -472,6 +474,20 @@ function isPageRelativeQuestion(query: string) {
   ].some((pattern) => normalizedQuery.includes(pattern));
 }
 
+function buildPageContextChunk(pageContext?: PageContext): KnowledgeChunk | null {
+  if (!pageContext?.documentText?.trim()) {
+    return null;
+  }
+
+  return {
+    id: `page-context-${pageContext.type}-${pageContext.slug}`,
+    sourceType: pageContext.type,
+    title: pageContext.title || pageContext.slug,
+    slug: pageContext.slug,
+    text: stripMarkdown(pageContext.documentText),
+  };
+}
+
 const profileChunks: Array<KnowledgeChunk> = [
   {
     id: "profile-intro",
@@ -824,6 +840,7 @@ export function retrieveRelevantChunks(
   pageContext?: PageContext,
 ) {
   let knowledgeBase = portfolioKnowledgeBase;
+  const pageContextChunk = buildPageContextChunk(pageContext);
 
   if (pageContext?.type === "insight" && isPageRelativeQuestion(query)) {
     const matchingInsightChunks = portfolioKnowledgeBase.filter(
@@ -866,8 +883,32 @@ export function retrieveRelevantChunks(
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
 
+  if (pageContextChunk) {
+    const existingPageChunkIndex = scored.findIndex(
+      (entry) =>
+        entry.chunk.sourceType === pageContextChunk.sourceType &&
+        entry.chunk.slug === pageContextChunk.slug,
+    );
+
+    const pageChunkScore = Math.max(scored[0]?.score ?? 0, 4) + 2;
+    const pageChunkEntry = {
+      chunk: pageContextChunk,
+      score: pageChunkScore,
+    };
+
+    if (existingPageChunkIndex >= 0) {
+      scored.splice(existingPageChunkIndex, 1, pageChunkEntry);
+    } else {
+      scored.unshift(pageChunkEntry);
+    }
+  }
+
+  const topScored = scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
+
   if (
-    scored.length === 0 &&
+    topScored.length === 0 &&
     pageContext?.type === "insight" &&
     isPageRelativeQuestion(query)
   ) {
@@ -883,7 +924,7 @@ export function retrieveRelevantChunks(
   }
 
   if (
-    scored.length === 0 &&
+    topScored.length === 0 &&
     pageContext?.type === "case-study" &&
     isPageRelativeQuestion(query)
   ) {
@@ -899,8 +940,8 @@ export function retrieveRelevantChunks(
       }));
   }
 
-  if (scored.length > 0) {
-    return scored;
+  if (topScored.length > 0) {
+    return topScored;
   }
 
   if (isJobHistoryQuestion(query)) {
@@ -998,8 +1039,19 @@ export function shouldAnswerFromProfile(
         entry.chunk.sourceType === "case-study" &&
         entry.chunk.slug === pageContext.slug,
     );
+  const hasCurrentPageDocument =
+    Boolean(pageContext?.documentText?.trim()) &&
+    retrievedChunks.some(
+      (entry) =>
+        entry.chunk.sourceType === pageContext?.type &&
+        entry.chunk.slug === pageContext.slug,
+    );
 
-  if (isInsightPageRelativeQuestion || isCaseStudyPageRelativeQuestion) {
+  if (
+    isInsightPageRelativeQuestion ||
+    isCaseStudyPageRelativeQuestion ||
+    hasCurrentPageDocument
+  ) {
     return hasStrongRetrieval || hasEnoughSignal;
   }
 

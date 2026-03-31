@@ -1,8 +1,29 @@
 # Podcast Generator
 
-This folder contains a ready-made two-host podcast script about Michael Posso's work and a generator for turning it into audio.
+This folder contains the current two-host podcast script plus audio generation options.
 
-## What I still need from you
+## Available paths
+
+- Cloud TTS via `generate-podcast.ts` for ElevenLabs
+- Windows desktop voices via `generate-podcast-local.ps1`
+- Local model comparison via `podcast/local-tts/`
+
+## Local model comparison
+
+Use [local-tts/README.md](C:/dev/gemini-chatbot/podcast/local-tts/README.md) to compare `Chatterbox` and `F5-TTS` locally with the same two-host script.
+
+That setup lets you:
+
+- test two host voices side by side
+- choose accents through reference clips
+- tune expression and speed
+- render a short sample set before rendering the full episode
+
+## ElevenLabs path
+
+If you still want cloud generation later, the existing path is here.
+
+### What I still need from you
 
 - An `ELEVENLABS_API_KEY` if you want real generated audio.
 - Two ElevenLabs voice IDs, one for each host.
@@ -10,13 +31,13 @@ This folder contains a ready-made two-host podcast script about Michael Posso's 
   - `ELEVENLABS_HOST_A_VOICE_ID`
   - `ELEVENLABS_HOST_B_VOICE_ID`
 
-## What is already prepared
+### What is already prepared
 
-- `podcast-script.md`: a ~4 minute two-host podcast script.
+- `podcast-script.md`: the two-host podcast script.
 - `podcast-lines.json`: the structured dialogue used for audio generation.
 - `generate-podcast.ts`: generates one MP3 per line and, if `ffmpeg` is installed, a combined episode MP3.
 
-## Run
+### Run
 
 PowerShell:
 
@@ -27,7 +48,7 @@ $env:ELEVENLABS_HOST_B_VOICE_ID="voice_id_for_host_b"
 .\node_modules\.bin\tsx.cmd .\podcast\generate-podcast.ts
 ```
 
-## Output
+### Output
 
 - `podcast/output/lines/`: individual MP3 clips
 - `podcast/output/podcast-full.mp3`: combined file when `ffmpeg` is available
