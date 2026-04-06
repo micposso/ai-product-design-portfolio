@@ -1,8 +1,8 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { AnimatedCard } from "@/components/custom/animated-card";
 import { CaseStudyChat } from "@/components/custom/case-study-chat";
+import { ExpandableImage } from "@/components/custom/expandable-image";
 import { PageTopNav } from "@/components/custom/page-top-nav";
 import { SidebarRail } from "@/components/custom/sidebar-rail";
 import {
@@ -164,12 +164,10 @@ export default async function Page({
                                     className="overflow-hidden rounded-2xl border border-[color:var(--editorial-border)] shadow-[var(--editorial-shadow)]"
                                   >
                                     <div className="relative aspect-[21/8] w-full rounded-2xl">
-                                      <Image
+                                      <ExpandableImage
                                         src={inlineImage.src}
                                         alt={inlineImage.alt}
-                                        fill
-                                        sizes="(max-width: 1024px) 100vw, 960px"
-                                        className="rounded-2xl object-cover"
+                                        className="size-full rounded-2xl object-cover"
                                       />
                                     </div>
                                     {inlineImage.caption ? (

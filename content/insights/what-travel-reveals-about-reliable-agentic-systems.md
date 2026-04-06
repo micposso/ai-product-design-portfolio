@@ -22,7 +22,7 @@ Location services such as Google Maps provide a strong foundation, but they are 
 
 To address this, the system was designed as a multi agent architecture coordinated through a scheduler. A planning agent generates a daily itinerary based on location and constraints. A places agent retrieves points of interest and restaurants. A navigation agent calculates walking distances using mapping APIs. A translation agent processes Croatian content into English. These components operate as a continuous workflow, updating throughout the day rather than responding to isolated prompts.
 
-![Diagram of the travel agentic workflow](/images/travel-agentic-workflow-diagram.svg)
+![Diagram of the travel agentic workflow](/images/travel-agentic-workflow-diagram.png)
 Caption: Workflow for the Split travel assistant, coordinated through OpenClaw with fallback escalation to voice.
 
 The most complex challenge appeared when data was missing or contradictory. Structured sources could not always be trusted, especially during holidays. To explore this gap, I experimented with a voice based agent using AgentPhone. The goal was to contact local businesses, ask for opening hours in Croatian, and translate the response into English.
