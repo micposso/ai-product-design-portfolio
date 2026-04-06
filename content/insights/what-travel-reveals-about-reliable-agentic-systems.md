@@ -31,7 +31,7 @@ In practice, this is not fully reliable. Conversations are unpredictable, backgr
 
 Even with these limitations, voice provides access to information that is not consistently available through APIs or search.
 
-The system runs locally using Gemma for reasoning on a MacBook M4 with 24GB RAM, which is sufficient for orchestrating tasks, handling multilingual input, and coordinating tool use with low latency. OpenClaw acts as the orchestration layer, managing agents, scheduling execution, coordinating tools, and handling fallback strategies. Outputs are delivered through WhatsApp and supported by a local TTS model.
+Google's release of Gemma 4 made this setup feel more viable. The model family was positioned around unusually strong performance for its size, with a clear promise that capable agentic workflows could run closer to the edge on smaller hardware. The system runs locally using Gemma for reasoning on a MacBook M4 with 24GB RAM, which is sufficient for orchestrating tasks, handling multilingual input, and coordinating tool use with low latency. OpenClaw acts as the orchestration layer, managing agents, scheduling execution, coordinating tools, and handling fallback strategies. Outputs are delivered through WhatsApp and supported by a local TTS model.
 
 What becomes clear is that useful AI systems depend on how well they coordinate actions over time. Orchestration, state, and recovery from incomplete information determine whether the system works in practice.
 
