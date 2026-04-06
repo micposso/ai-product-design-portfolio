@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { PageTopNav } from "@/components/custom/page-top-nav";
@@ -36,20 +37,42 @@ export default function Page() {
                         href={`/insights/${post.slug}`}
                         className="editorial-card block rounded-xl border p-5 transition hover:-translate-y-0.5 hover:brightness-110"
                       >
-                        <div className="editorial-subtle mb-3 flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.16em]">
-                          <span className="editorial-sans font-semibold">
-                            {post.publishedAt}
-                          </span>
-                          <span className="editorial-sans font-semibold">
-                            {post.category}
-                          </span>
+                        <div
+                          className={
+                            post.image
+                              ? "grid gap-4 md:grid-cols-[minmax(0,1fr)_220px] md:items-center"
+                              : undefined
+                          }
+                        >
+                          <div className="min-w-0">
+                            <div className="editorial-subtle mb-3 flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.16em]">
+                              <span className="editorial-sans font-semibold">
+                                {post.publishedAt}
+                              </span>
+                              <span className="editorial-sans font-semibold">
+                                {post.category}
+                              </span>
+                            </div>
+                            <h2 className="break-words text-2xl font-bold text-[var(--editorial-text)]">
+                              {post.title}
+                            </h2>
+                            <p className="insight-copy editorial-muted mt-3 max-w-3xl text-base leading-8">
+                              {post.excerpt}
+                            </p>
+                          </div>
+
+                          {post.image ? (
+                            <div className="relative hidden aspect-[4/3] overflow-hidden rounded-xl border border-[color:var(--editorial-border)] shadow-[var(--editorial-shadow)] md:block">
+                              <Image
+                                src={post.image}
+                                alt={post.title}
+                                fill
+                                sizes="220px"
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : null}
                         </div>
-                        <h2 className="break-words text-2xl font-bold text-[var(--editorial-text)]">
-                          {post.title}
-                        </h2>
-                        <p className="insight-copy editorial-muted mt-3 max-w-3xl text-base leading-8">
-                          {post.excerpt}
-                        </p>
                       </Link>
                     </div>
                   ))}
