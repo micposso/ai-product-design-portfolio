@@ -1,11 +1,46 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { AnimatedCard } from "@/components/custom/animated-card";
 import { CaseStudyChat } from "@/components/custom/case-study-chat";
 import { PageTopNav } from "@/components/custom/page-top-nav";
 import { SidebarRail } from "@/components/custom/sidebar-rail";
-import { getInsightBySlug } from "@/lib/insights";
+import {
+  buildInsightContextDocument,
+  getInsightBySlug,
+  getInsightSuggestedActions,
+} from "@/lib/insights";
 import { generateUUID } from "@/lib/utils";
+
+function parseInlineImageParagraph(paragraph: string) {
+  const lines = paragraph
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length === 0) {
+    return null;
+  }
+
+  const imageMatch = lines[0]?.match(/^!\[(.*)\]\((.+)\)$/);
+
+  if (!imageMatch) {
+    return null;
+  }
+
+  const alt = imageMatch[1]?.trim() || "Insight image";
+  const src = imageMatch[2]?.trim();
+  const captionLine = lines[1];
+  const caption = captionLine?.startsWith("Caption:")
+    ? captionLine.replace("Caption:", "").trim()
+    : undefined;
+
+  if (!src) {
+    return null;
+  }
+
+  return { alt, src, caption };
+}
 
 export default async function Page({
   params,
@@ -20,6 +55,7 @@ export default async function Page({
   }
 
   const chatId = generateUUID();
+  const insightDocument = buildInsightContextDocument(post);
 
   return (
     <div className="px-4 pb-36 md:px-6 md:pb-40">
@@ -39,10 +75,10 @@ export default async function Page({
                   <header className="max-w-3xl border-l border-[color:var(--editorial-border)] pl-4">
                     <div className="editorial-subtle flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.16em]">
                       <span className="editorial-sans font-semibold">
-                        Date: {post.publishedAt}
+                        {post.publishedAt}
                       </span>
                       <span className="editorial-sans font-semibold">
-                        Category: {post.category}
+                        {post.category}
                       </span>
                       <span className="editorial-sans font-semibold">
                         {post.readTime}
@@ -56,6 +92,28 @@ export default async function Page({
                     </p>
                   </header>
                 </AnimatedCard>
+
+                {post.image ? (
+                  <AnimatedCard delay={0.18}>
+                    <div className="overflow-hidden rounded-2xl border border-[color:var(--editorial-border)] shadow-[var(--editorial-shadow)]">
+                      <div
+                        className="relative aspect-[21/8] w-full rounded-2xl bg-cover bg-center bg-fixed"
+                        style={{ backgroundImage: `url(${post.image})` }}
+                        aria-label={post.title}
+                        role="img"
+                      >
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[#1f1914]/30 via-[#1f1914]/8 to-transparent" />
+                        {post.imageNote ? (
+                          <div className="absolute bottom-4 right-4 z-10 max-w-[22rem] rounded-xl border border-white/20 bg-[#1f1914]/72 px-3 py-2 text-right shadow-[0_18px_40px_-24px_rgba(0,0,0,0.5)] backdrop-blur-sm sm:bottom-5 sm:right-5 sm:max-w-[24rem] sm:px-4">
+                            <p className="text-sm leading-6 text-white sm:text-[0.95rem]">
+                              {post.imageNote}
+                            </p>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </AnimatedCard>
+                ) : null}
 
                 <section className="max-w-4xl">
                   <div className="insight-copy editorial-muted space-y-8 text-[1.02rem] leading-8">
@@ -76,8 +134,16 @@ export default async function Page({
                               .split(/\n\n+/)
                               .map((paragraph) => paragraph.trim())
                               .filter(Boolean)
-                              .map((paragraph, paragraphIndex) =>
-                                paragraph.startsWith("- ") ? (
+                              .map((paragraph, paragraphIndex) => {
+                                const isList = paragraph.startsWith("- ");
+                                const isQuote =
+                                  paragraph.startsWith('"') &&
+                                  paragraph.endsWith('"');
+                                const inlineImage = parseInlineImageParagraph(
+                                  paragraph,
+                                );
+
+                                return isList ? (
                                   <ul
                                     key={`${section.title}-${paragraphIndex}`}
                                     className="list-disc space-y-2 pl-6"
@@ -92,6 +158,35 @@ export default async function Page({
                                         <li key={line}>{line}</li>
                                       ))}
                                   </ul>
+                                ) : inlineImage ? (
+                                  <div
+                                    key={`${section.title}-${paragraphIndex}`}
+                                    className="overflow-hidden rounded-2xl border border-[color:var(--editorial-border)] shadow-[var(--editorial-shadow)]"
+                                  >
+                                    <div className="relative aspect-[21/8] w-full rounded-2xl">
+                                      <Image
+                                        src={inlineImage.src}
+                                        alt={inlineImage.alt}
+                                        fill
+                                        sizes="(max-width: 1024px) 100vw, 960px"
+                                        className="rounded-2xl object-cover"
+                                      />
+                                    </div>
+                                    {inlineImage.caption ? (
+                                      <div className="border-t border-[color:var(--editorial-border)] bg-[var(--editorial-subtle-surface)] px-4 py-3 sm:px-5">
+                                        <p className="editorial-muted text-sm leading-6">
+                                          {inlineImage.caption}
+                                        </p>
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                ) : isQuote ? (
+                                  <blockquote
+                                    key={`${section.title}-${paragraphIndex}`}
+                                    className="case-study-pullquote my-8 border-y border-[color:var(--editorial-border)] py-6 text-center text-xl italic leading-9 text-[var(--color-brand-primary)] sm:px-8 sm:text-2xl"
+                                  >
+                                    <p className="font-display">{paragraph}</p>
+                                  </blockquote>
                                 ) : (
                                   <p
                                     key={`${section.title}-${paragraphIndex}`}
@@ -104,8 +199,8 @@ export default async function Page({
                                   >
                                     {paragraph}
                                   </p>
-                                ),
-                              )}
+                                );
+                              })}
                           </div>
                         </AnimatedCard>
                       ))}
@@ -122,29 +217,13 @@ export default async function Page({
         promptHint={post.prompt}
         dockLabel="Chat About This Post"
         overlayTitle="Ask about this post"
-        pageContext={{ type: "insight", slug: post.slug }}
-        suggestedActions={[
-          {
-            title: "Summarize the",
-            label: "core argument of this piece",
-            action: "Summarize the core argument of this piece.",
-          },
-          {
-            title: "What product",
-            label: "decisions are behind this post?",
-            action: "What product decisions are behind this post?",
-          },
-          {
-            title: "How would you",
-            label: "apply these ideas in practice?",
-            action: "How would you apply the ideas in this post to a real product team?",
-          },
-          {
-            title: "What should I",
-            label: "take away from this as a builder?",
-            action: "What should I take away from this post as a product builder?",
-          },
-        ]}
+        pageContext={{
+          type: "insight",
+          slug: post.slug,
+          title: post.title,
+          documentText: insightDocument,
+        }}
+        suggestedActions={getInsightSuggestedActions(post)}
       />
     </div>
   );

@@ -11,12 +11,89 @@ export type InsightPost = {
   category: string;
   title: string;
   excerpt: string;
+  image?: string;
+  imageNote?: string;
   publishedAt: string;
   readTime: string;
   prompt: string;
   sections: Array<InsightSection>;
   markdown: string;
 };
+
+export type InsightSuggestedAction = {
+  title: string;
+  label: string;
+  action: string;
+};
+
+export function buildInsightContextDocument(post: InsightPost) {
+  return [
+    post.title,
+    `Category: ${post.category}`,
+    post.image ? `Image: ${post.image}` : "",
+    post.imageNote ? `Image Note: ${post.imageNote}` : "",
+    `Published At: ${post.publishedAt}`,
+    `Read Time: ${post.readTime}`,
+    `Excerpt: ${post.excerpt}`,
+    ...post.sections.map(
+      (section) => `${section.title}\n${section.content}`,
+    ),
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+export function getInsightSuggestedActions(
+  post: InsightPost,
+): Array<InsightSuggestedAction> {
+  if (post.slug === "what-travel-reveals-about-reliable-agentic-systems") {
+    return [
+      {
+        title: "Summarize the",
+        label: "core argument of this post",
+        action: "Summarize the core argument of this post.",
+      },
+      {
+        title: "Why is travel",
+        label: "a useful test for agentic systems?",
+        action: "Why is travel a useful real-world test for agentic systems in this post?",
+      },
+      {
+        title: "How does the",
+        label: "multi-agent system actually work?",
+        action: "How does the multi-agent travel system in this post actually work?",
+      },
+      {
+        title: "What role does",
+        label: "voice play when APIs fail?",
+        action: "What role does the voice-based agent play in this post when APIs and search are unreliable?",
+      },
+    ];
+  }
+
+  return [
+    {
+      title: "Summarize the",
+      label: "core argument of this post",
+      action: "Summarize the core argument of this post.",
+    },
+    {
+      title: "What product",
+      label: "decisions are behind this post?",
+      action: "What product decisions are behind this post?",
+    },
+    {
+      title: "How would you",
+      label: "apply these ideas in practice?",
+      action: "How would you apply the ideas in this post to a real product team?",
+    },
+    {
+      title: "What should I",
+      label: "take away from this as a builder?",
+      action: "What should I take away from this post as a product builder?",
+    },
+  ];
+}
 
 function normalizeContent(content: string) {
   return content.replace(/^---$/gm, "").replace(/\r\n/g, "\n").trim();
@@ -26,6 +103,8 @@ function parseMetadata(markdown: string) {
   const lines = markdown.split("\n");
   const metadata = {
     category: "",
+    image: "",
+    imageNote: "",
     publishedAt: "",
     readTime: "",
     prompt: "",
@@ -43,6 +122,10 @@ function parseMetadata(markdown: string) {
 
     if (line.startsWith("Category:")) {
       metadata.category = line.replace("Category:", "").trim();
+    } else if (line.startsWith("Image:")) {
+      metadata.image = line.replace("Image:", "").trim();
+    } else if (line.startsWith("Image Note:")) {
+      metadata.imageNote = line.replace("Image Note:", "").trim();
     } else if (line.startsWith("Published At:")) {
       metadata.publishedAt = line.replace("Published At:", "").trim();
     } else if (line.startsWith("Read Time:")) {
@@ -82,6 +165,8 @@ function parseInsightPost(markdown: string, slug: string): InsightPost {
     category: metadata.category,
     title,
     excerpt: excerptSection?.content ?? "",
+    image: metadata.image || undefined,
+    imageNote: metadata.imageNote || undefined,
     publishedAt: metadata.publishedAt,
     readTime: metadata.readTime,
     prompt: metadata.prompt,
@@ -90,19 +175,25 @@ function parseInsightPost(markdown: string, slug: string): InsightPost {
   };
 }
 
+function getPublishedAtTimestamp(post: InsightPost) {
+  const timestamp = Date.parse(post.publishedAt);
+
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
 function loadInsightPosts() {
   const insightsDirectory = path.join(process.cwd(), "content", "insights");
 
   return readdirSync(insightsDirectory)
     .filter((filename) => filename.endsWith(".md"))
-    .sort()
     .map((filename) => {
       const slug = filename.replace(/\.md$/, "");
       const insightPath = path.join(insightsDirectory, filename);
       const markdown = readFileSync(insightPath, "utf8");
 
       return parseInsightPost(markdown, slug);
-    });
+    })
+    .sort((a, b) => getPublishedAtTimestamp(b) - getPublishedAtTimestamp(a));
 }
 
 export const insightPosts: Array<InsightPost> = loadInsightPosts();
