@@ -6,6 +6,11 @@ import { Toaster } from "sonner";
 import { Footer } from "@/components/custom/footer";
 import { Navbar } from "@/components/custom/navbar";
 import { ThemeProvider } from "@/components/custom/theme-provider";
+import {
+  absoluteUrl,
+  getHomepageStructuredData,
+  siteConfig,
+} from "@/lib/site";
 
 import "./globals.css";
 
@@ -29,13 +34,36 @@ const playfairDisplaySerif = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gemini.vercel.ai"),
-  title: "Michael Posso | Product Engineer",
-  description: "Next.js chatbot template using the AI SDK and Gemini.",
+  metadataBase: new URL(siteConfig.url),
+  title: siteConfig.title,
+  description: siteConfig.description,
+  keywords: [...siteConfig.keywords],
+  alternates: {
+    canonical: absoluteUrl("/"),
+  },
   icons: {
-    icon: "/images/profile.jpg",
-    shortcut: "/images/profile.jpg",
-    apple: "/images/profile.jpg",
+    icon: siteConfig.image,
+    shortcut: siteConfig.image,
+    apple: siteConfig.image,
+  },
+  openGraph: {
+    title: siteConfig.title,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    siteName: siteConfig.title,
+    locale: siteConfig.locale,
+    type: "website",
+    images: [
+      {
+        url: absoluteUrl(siteConfig.image),
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.title,
+    description: siteConfig.description,
+    images: [absoluteUrl(siteConfig.image)],
   },
 };
 
@@ -80,6 +108,13 @@ export default async function RootLayout({
             gtag('js', new Date());
             gtag('config', 'G-3WCMHMMGEW');
           `}
+        </Script>
+        <Script
+          id="structured-data"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+        >
+          {JSON.stringify(getHomepageStructuredData())}
         </Script>
         <ThemeProvider
           attribute="class"
