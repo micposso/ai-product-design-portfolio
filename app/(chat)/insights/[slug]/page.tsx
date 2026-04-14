@@ -9,8 +9,14 @@ import {
   buildInsightContextDocument,
   getInsightBySlug,
   getInsightSuggestedActions,
+  insightPosts,
 } from "@/lib/insights";
-import { generateUUID } from "@/lib/utils";
+
+export function generateStaticParams() {
+  return insightPosts.map((post) => ({
+    slug: post.slug,
+  }));
+}
 
 function parseInlineImageParagraph(paragraph: string) {
   const lines = paragraph
@@ -54,7 +60,7 @@ export default async function Page({
     notFound();
   }
 
-  const chatId = generateUUID();
+  const chatId = `insight-${post.slug}`;
   const insightDocument = buildInsightContextDocument(post);
 
   return (

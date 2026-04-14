@@ -8,9 +8,15 @@ import { PageTopNav } from "@/components/custom/page-top-nav";
 import { SidebarRail } from "@/components/custom/sidebar-rail";
 import {
   buildCaseStudyContextDocument,
+  caseStudies,
   getCaseStudyBySlug,
 } from "@/lib/case-studies";
-import { generateUUID } from "@/lib/utils";
+
+export function generateStaticParams() {
+  return caseStudies.map((caseStudy) => ({
+    slug: caseStudy.slug,
+  }));
+}
 
 export default async function Page({
   params,
@@ -24,7 +30,7 @@ export default async function Page({
     notFound();
   }
 
-  const chatId = generateUUID();
+  const chatId = `case-study-${caseStudy.slug}`;
   const caseStudyDocument = buildCaseStudyContextDocument(caseStudy);
 
   return (
