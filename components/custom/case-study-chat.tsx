@@ -1,6 +1,5 @@
 "use client";
 
-import { Attachment, Message } from "ai";
 import { useChat } from "ai/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
@@ -10,10 +9,12 @@ import { Message as PreviewMessage } from "@/components/custom/message";
 import { TypingIndicator } from "@/components/custom/typing-indicator";
 import { usePersistedChatState } from "@/components/custom/use-persisted-chat-state";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
-import { PageContext } from "@/lib/rag";
 
 import { MultimodalInput } from "./multimodal-input";
 import { Button } from "../ui/button";
+
+import type { PageContext } from "@/lib/rag";
+import type { Attachment, Message } from "ai";
 
 export function CaseStudyChat({
   id,
