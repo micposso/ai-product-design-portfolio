@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { AnimatedCard } from "@/components/custom/animated-card";
+import { ArticleEmailButton } from "@/components/custom/article-email-button";
 import { CaseStudyChat } from "@/components/custom/case-study-chat";
 import { ExpandableImage } from "@/components/custom/expandable-image";
 import { PageTopNav } from "@/components/custom/page-top-nav";
@@ -62,6 +63,7 @@ export default async function Page({
 
   const chatId = `insight-${post.slug}`;
   const insightDocument = buildInsightContextDocument(post);
+  const articleUrl = `https://www.michaelposso.ai/insights/${post.slug}`;
 
   return (
     <div className="px-4 pb-36 md:px-6 md:pb-40">
@@ -78,19 +80,28 @@ export default async function Page({
             >
               <div className="flex flex-col gap-8">
                 <AnimatedCard delay={0.14}>
-                  <header className="max-w-3xl border-l border-[color:var(--editorial-border)] pl-4">
-                    <div className="editorial-subtle flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.16em]">
-                      <span className="editorial-sans font-semibold">
-                        {post.publishedAt}
-                      </span>
-                      <span className="editorial-sans font-semibold">
-                        {post.category}
-                      </span>
-                      <span className="editorial-sans font-semibold">
-                        {post.readTime}
-                      </span>
+                  <header className="border-l border-[color:var(--editorial-border)] pl-4">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="editorial-subtle flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.16em]">
+                        <span className="editorial-sans font-semibold">
+                          {post.publishedAt}
+                        </span>
+                        <span className="editorial-sans font-semibold">
+                          {post.category}
+                        </span>
+                        <span className="editorial-sans font-semibold">
+                          {post.readTime}
+                        </span>
+                      </div>
+                      <div className="sm:ml-6 sm:shrink-0">
+                        <ArticleEmailButton
+                          articleTitle={post.title}
+                          articleUrl={articleUrl}
+                          buttonLabel="Email Me This Article"
+                        />
+                      </div>
                     </div>
-                    <h1 className="mt-3 break-words text-3xl font-bold tracking-tight text-[var(--editorial-text)] sm:text-4xl md:text-6xl">
+                    <h1 className="mt-3 max-w-3xl break-words text-3xl font-bold tracking-tight text-[var(--editorial-text)] sm:text-4xl md:text-6xl">
                       {post.title}
                     </h1>
                     <p className="editorial-muted mt-4 max-w-3xl text-base leading-8 md:text-lg">

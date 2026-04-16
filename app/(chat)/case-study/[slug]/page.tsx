@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { AnimatedCard } from "@/components/custom/animated-card";
+import { ArticleEmailButton } from "@/components/custom/article-email-button";
 import { CaseStudyChat } from "@/components/custom/case-study-chat";
 import { PageTopNav } from "@/components/custom/page-top-nav";
 import { SidebarRail } from "@/components/custom/sidebar-rail";
@@ -32,6 +33,7 @@ export default async function Page({
 
   const chatId = `case-study-${caseStudy.slug}`;
   const caseStudyDocument = buildCaseStudyContextDocument(caseStudy);
+  const articleUrl = `https://www.michaelposso.ai/case-study/${caseStudy.slug}`;
 
   return (
     <div className="px-4 pb-36 md:px-6 md:pb-40">
@@ -51,9 +53,18 @@ export default async function Page({
                   <section className="editorial-card rounded-xl border p-4 sm:p-5">
                     <div className="grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)] lg:items-center">
                       <div>
-                        <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
-                          {caseStudy.eyebrow}
-                        </p>
+                        <div className="flex flex-col gap-4">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <ArticleEmailButton
+                              articleTitle={caseStudy.title}
+                              articleUrl={articleUrl}
+                              buttonLabel="Email Me This Case Study"
+                            />
+                            <p className="editorial-sans text-xs font-semibold uppercase tracking-[0.18em] text-[var(--editorial-text)]">
+                              {caseStudy.eyebrow}
+                            </p>
+                          </div>
+                        </div>
                         <h1 className="mt-3 break-words text-3xl font-bold tracking-tight text-[var(--editorial-text)] sm:text-4xl md:text-6xl">
                           {caseStudy.title}
                         </h1>
