@@ -38,9 +38,6 @@ export const metadata: Metadata = {
   title: siteConfig.title,
   description: siteConfig.description,
   keywords: [...siteConfig.keywords],
-  alternates: {
-    canonical: absoluteUrl("/"),
-  },
   icons: {
     icon: siteConfig.image,
     shortcut: siteConfig.image,
@@ -56,6 +53,9 @@ export const metadata: Metadata = {
     images: [
       {
         url: absoluteUrl(siteConfig.image),
+        width: 500,
+        height: 500,
+        alt: `${siteConfig.name} profile photo`,
       },
     ],
   },
@@ -63,7 +63,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.title,
     description: siteConfig.description,
-    images: [absoluteUrl(siteConfig.image)],
+    images: [
+      {
+        url: absoluteUrl(siteConfig.image),
+        alt: `${siteConfig.name} profile photo`,
+      },
+    ],
   },
 };
 
