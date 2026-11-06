@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Message as PreviewMessage } from "@/components/custom/message";
+import { ModelError } from "@/components/custom/model-error";
 import { TypingIndicator } from "@/components/custom/typing-indicator";
 import { usePersistedChatState } from "@/components/custom/use-persisted-chat-state";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
@@ -37,6 +38,7 @@ export function CaseStudyChat({
 }) {
   const {
     messages,
+    error,
     handleSubmit,
     input,
     setInput,
@@ -181,6 +183,7 @@ export function CaseStudyChat({
                       messages.length === 0 ? "justify-start" : ""
                     }`}
                   >
+                    <ModelError error={error} />
                     <form className="relative flex w-full shrink-0 flex-row items-end gap-2">
                       <MultimodalInput
                         input={input}

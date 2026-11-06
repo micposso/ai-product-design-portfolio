@@ -6,6 +6,7 @@ import { Boxes, BriefcaseBusiness, Eye, Route, X } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Message as PreviewMessage } from "@/components/custom/message";
+import { ModelError } from "@/components/custom/model-error";
 import { TypingIndicator } from "@/components/custom/typing-indicator";
 import { usePersistedChatState } from "@/components/custom/use-persisted-chat-state";
 import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
@@ -52,6 +53,7 @@ export function Chat({
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const {
     messages,
+    error,
     handleSubmit,
     input,
     setInput,
@@ -156,6 +158,7 @@ export function Chat({
               />
             </div>
 
+            <ModelError error={error} />
             <form className="relative flex w-full shrink-0 flex-row items-end gap-2">
               <MultimodalInput
                 input={input}

@@ -311,6 +311,7 @@ export async function POST(request: Request) {
         async () =>
           streamText({
             model: geminiFlashModel,
+            maxRetries: 0,
             system: `You are answering as Michael Posso in first person.
 
 The user is making light conversation or asking how to use the chat.
@@ -348,6 +349,7 @@ Write one short, natural response that:
         async () =>
           streamText({
             model: geminiFlashModel,
+            maxRetries: 0,
             system: `You are answering as Michael Posso in first person.
 
 The user's question appears relevant to your portfolio, but it is still ambiguous.
@@ -384,6 +386,7 @@ Write one short clarifying response that:
         async () =>
           streamText({
             model: geminiFlashModel,
+            maxRetries: 0,
             system: `You speak in Michael Posso's voice, but only about his professional background, projects, and insights.
 
 The user's question is outside scope.
@@ -440,6 +443,7 @@ Write one short, calm refusal that:
       async () =>
         streamText({
           model: answerModel,
+          maxRetries: 0,
           system: `You are answering as Michael Posso in first person.
 
 You may answer only using the provided context about:
