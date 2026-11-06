@@ -121,7 +121,7 @@ export default async function Page({
                       >
                         <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-[#1f1914]/30 via-[#1f1914]/8 to-transparent" />
                         {post.imageNote ? (
-                          <div className="absolute bottom-4 right-4 z-10 max-w-[22rem] rounded-xl border border-white/20 bg-[#1f1914]/72 px-3 py-2 text-right shadow-[0_18px_40px_-24px_rgba(0,0,0,0.5)] backdrop-blur-sm sm:bottom-5 sm:right-5 sm:max-w-[24rem] sm:px-4">
+                          <div className="absolute bottom-4 right-4 z-10 max-w-[22rem] rounded-xl border border-white/20 bg-[#1f1914]/72 px-3 py-2 text-right shadow-[0_18px_40px_-24px_rgba(0,0,0,0.5)] backdrop-blur-sm sm:bottom-5 sm:right-5 sm:max-w-96 sm:px-4">
                             <p className="text-sm leading-6 text-white sm:text-[0.95rem]">
                               {post.imageNote}
                             </p>

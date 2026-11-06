@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 type ExpandableImageProps = {
@@ -42,10 +43,16 @@ export function ExpandableImage({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="block size-full cursor-zoom-in"
+        className="relative block size-full cursor-zoom-in"
         aria-label={`Expand image: ${alt}`}
       >
-        <img src={src} alt={alt} className={className} />
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes="(max-width: 768px) 92vw, 768px"
+          className={className}
+        />
       </button>
 
       {isOpen ? (
@@ -66,13 +73,16 @@ export function ExpandableImage({
           </button>
 
           <div
-            className="max-h-[90vh] max-w-[92vw] overflow-hidden rounded-2xl border border-white/10 bg-[#221914] shadow-[0_40px_120px_-36px_rgba(0,0,0,0.65)]"
+            className="relative max-h-[90vh] max-w-[92vw] overflow-hidden rounded-2xl border border-white/10 bg-[#221914] shadow-[0_40px_120px_-36px_rgba(0,0,0,0.65)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <img
+            <Image
               src={src}
               alt={alt}
-              className="max-h-[90vh] max-w-[92vw] object-contain"
+              width={1600}
+              height={1200}
+              sizes="92vw"
+              className="h-auto max-h-[90vh] max-w-[92vw] object-contain"
             />
           </div>
         </div>
